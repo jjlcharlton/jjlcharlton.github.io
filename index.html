@@ -29,10 +29,23 @@
                                 <div id="speciesDropdown" class="dropdown-list"></div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label" for="nicknameInput">Nickname</label>
-                            <input type="text" id="nicknameInput" class="form-control" placeholder="Enter nickname..." maxlength="12">
+                        
+                        <!-- Gender Selection (only shows for gendered Pokemon) -->
+                        <div id="genderSection" class="form-group" style="display: none;">
+                            <label class="form-label" for="genderSelect">Gender</label>
+                            <select id="genderSelect" class="form-control">
+                                <option value="">Select gender...</option>
+                                <option value="M">Male (M)</option>
+                                <option value="F">Female (F)</option>
+                            </select>
                         </div>
+                        
+                        <!-- Nickname Field -->
+                        <div class="form-group">
+                            <label class="form-label" for="nicknameInput">Nickname (Optional)</label>
+                            <input type="text" id="nicknameInput" class="form-control" placeholder="Enter custom nickname..." maxlength="12">
+                        </div>
+                        
                         <div id="pokemonPreview" class="pokemon-preview" style="display: none;">
                             <img id="pokemonSprite" class="pokemon-sprite" alt="Pokémon sprite">
                             <div class="pokemon-details">
@@ -40,7 +53,7 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label class="form-label" for="levelInput">Level</label>
-                                        <input type="number" id="levelInput" class="form-control" min="1" max="100" value="100">
+                                        <input type="number" id="levelInput" class="form-control" min="1" max="100" value="50">
                                     </div>
                                     <div class="form-group">
                                         <label class="shiny-toggle">
@@ -96,13 +109,6 @@
                                 <option value="">Select ball...</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label" for="otGenderSelect">OT Gender</label>
-                            <select id="otGenderSelect" class="form-control">
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                            </select>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -117,28 +123,28 @@
                     <div class="card__body">
                         <div class="moves-grid">
                             <div class="move-slot">
-                                <div class="autocomplete-wrapper">
-                                    <input type="text" class="form-control move-input" placeholder="Move 1" data-move="0">
-                                    <div class="dropdown-list move-dropdown" data-move="0"></div>
-                                </div>
+                                <label class="form-label" for="moveSelect1">Move 1</label>
+                                <select id="moveSelect1" class="form-control move-select" data-move="0">
+                                    <option value="">Select move...</option>
+                                </select>
                             </div>
                             <div class="move-slot">
-                                <div class="autocomplete-wrapper">
-                                    <input type="text" class="form-control move-input" placeholder="Move 2" data-move="1">
-                                    <div class="dropdown-list move-dropdown" data-move="1"></div>
-                                </div>
+                                <label class="form-label" for="moveSelect2">Move 2</label>
+                                <select id="moveSelect2" class="form-control move-select" data-move="1">
+                                    <option value="">Select move...</option>
+                                </select>
                             </div>
                             <div class="move-slot">
-                                <div class="autocomplete-wrapper">
-                                    <input type="text" class="form-control move-input" placeholder="Move 3" data-move="2">
-                                    <div class="dropdown-list move-dropdown" data-move="2"></div>
-                                </div>
+                                <label class="form-label" for="moveSelect3">Move 3</label>
+                                <select id="moveSelect3" class="form-control move-select" data-move="2">
+                                    <option value="">Select move...</option>
+                                </select>
                             </div>
                             <div class="move-slot">
-                                <div class="autocomplete-wrapper">
-                                    <input type="text" class="form-control move-input" placeholder="Move 4" data-move="3">
-                                    <div class="dropdown-list move-dropdown" data-move="3"></div>
-                                </div>
+                                <label class="form-label" for="moveSelect4">Move 4</label>
+                                <select id="moveSelect4" class="form-control move-select" data-move="3">
+                                    <option value="">Select move...</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -214,6 +220,13 @@
                             <div class="form-group">
                                 <label class="form-label" for="otInput">OT Name</label>
                                 <input type="text" id="otInput" class="form-control" placeholder="Trainer" maxlength="12" value="Ash">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="otGenderSelect">OT Gender</label>
+                                <select id="otGenderSelect" class="form-control">
+                                    <option value="M">Male (M)</option>
+                                    <option value="F">Female (F)</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-row">
