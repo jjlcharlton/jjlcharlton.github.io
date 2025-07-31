@@ -577,11 +577,11 @@ class PokemonGenerator {
         } ;
 
 	if (data.tid !== ``) {
-            	output += `OT: ${data.tid}\n`;
+            	output += `TID: ${data.tid}\n`;
         } ;
 
 	if (data.sid !== ``) {
-            	output += `OT: ${data.sid}\n`;
+            	output += `SID: ${data.sid}\n`;
         } ;
 
 	if (data.ot !== ``) {
