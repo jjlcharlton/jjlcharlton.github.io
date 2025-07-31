@@ -41,7 +41,7 @@ class PokemonGenerator {
         try {
             console.log('Loading complete Pokemon database...');
             // Load Pokemon with a more reasonable limit and better error handling
-            const pokemonResponse = await fetch('https://pokeapi.co/api/v2/pokemon?limit=500');
+            const pokemonResponse = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1025');
             if (!pokemonResponse.ok) {
                 throw new Error(`Pokemon API error: ${pokemonResponse.status}`);
             }
