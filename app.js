@@ -911,8 +911,9 @@ class PokemonGenerator {
             }
         });
 
-        // Check gender for gendered Pokemon
-        if (this.currentPokemon && this.currentPokemon.genderRate !== -1) {
+        // Check gender for Pokemon that can be both genders
+        if (this.currentPokemon && this.currentPokemon.genderRate !== -1 && 
+            this.currentPokemon.genderRate !== 0 && this.currentPokemon.genderRate !== 8) {
             const genderSelect = document.getElementById('genderSelect');
             if (!genderSelect?.value) {
                 errors.push('Select gender');
@@ -995,11 +996,25 @@ class PokemonGenerator {
         const evInputs = Array.from(document.querySelectorAll('.ev-input'));
         const evs = evInputs.map(input => parseInt(input.value) || 0);
 
-        // Get gender for gendered Pokemon
+        // Get gender for Pokemon
         let gender = '';
-        if (this.currentPokemon && this.currentPokemon.genderRate !== -1) {
-            const genderSelect = document.getElementById('genderSelect');
-            gender = genderSelect?.value || '';
+        if (this.currentPokemon) {
+            const genderRate = this.currentPokemon.genderRate;
+
+            if (genderRate === -1) {
+                // Genderless Pokemon - no gender
+                gender = '';
+            } else if (genderRate === 0) {
+                // Male-only Pokemon (like Tauros, Throh)
+                gender = 'M';
+            } else if (genderRate === 8) {
+                // Female-only Pokemon (like Chansey, Vullaby)
+                gender = 'F';
+            } else {
+                // Pokemon that can be both genders - get from dropdown
+                const genderSelect = document.getElementById('genderSelect');
+                gender = genderSelect?.value || '';
+            }
         }
 
         // Get nickname
