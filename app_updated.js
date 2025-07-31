@@ -43,7 +43,20 @@ class PokemonGenerator {
 
     initializeBasicData() {
         // Add comprehensive basic Pokemon data with proper types and abilities
-        this.pokemonData = [];
+        this.pokemonData = [
+            {name: 'bulbasaur', id: 1, types: ['grass', 'poison'], abilities: ['Overgrow', 'Chlorophyll (HA)'], genderRate: 1},
+            {name: 'charmander', id: 4, types: ['fire'], abilities: ['Blaze', 'Solar Power (HA)'], genderRate: 1},
+            {name: 'squirtle', id: 7, types: ['water'], abilities: ['Torrent', 'Rain Dish (HA)'], genderRate: 1},
+            {name: 'pikachu', id: 25, types: ['electric'], abilities: ['Static', 'Lightning Rod (HA)'], genderRate: 4},
+            {name: 'mewtwo', id: 150, types: ['psychic'], abilities: ['Pressure', 'Unnerve (HA)'], genderRate: -1},
+            {name: 'charizard', id: 6, types: ['fire', 'flying'], abilities: ['Blaze', 'Solar Power (HA)'], genderRate: 1},
+            {name: 'blastoise', id: 9, types: ['water'], abilities: ['Torrent', 'Rain Dish (HA)'], genderRate: 1},
+            {name: 'venusaur', id: 3, types: ['grass', 'poison'], abilities: ['Overgrow', 'Chlorophyll (HA)'], genderRate: 1},
+            {name: 'alakazam', id: 65, types: ['psychic'], abilities: ['Synchronize', 'Inner Focus', 'Magic Guard (HA)'], genderRate: 2},
+            {name: 'machamp', id: 68, types: ['fighting'], abilities: ['Guts', 'No Guard', 'Steadfast (HA)'], genderRate: 2},
+            {name: 'gengar', id: 94, types: ['ghost', 'poison'], abilities: ['Cursed Body'], genderRate: 4},
+            {name: 'dragonite', id: 149, types: ['dragon', 'flying'], abilities: ['Inner Focus', 'Multiscale (HA)'], genderRate: 4}
+        ];
 
         this.itemsData = ['None', 'Leftovers', 'Life Orb', 'Focus Sash', 'Choice Band', 'Choice Specs', 'Choice Scarf', 'Assault Vest'];
         this.movesData = ['Tackle', 'Thunderbolt', 'Surf', 'Earthquake', 'Psychic', 'Flamethrower', 'Ice Beam', 'Shadow Ball', 'Thunder Wave'];
@@ -81,7 +94,7 @@ class PokemonGenerator {
         try {
             // Load Pokemon species (complete list)
             console.log('Fetching Pokemon species...');
-            const speciesResponse = await fetch('https://pokeapi.co/api/v2/pokemon-species?limit=1025');
+            const speciesResponse = await fetch('https://pokeapi.co/api/v2/pokemon-species?limit=1000');
             const speciesData = await speciesResponse.json();
             
             const extendedPokemonData = speciesData.results.map((pokemon, index) => ({
@@ -101,7 +114,7 @@ class PokemonGenerator {
             
             // Load Items (complete list)
             console.log('Fetching items...');
-            const itemsResponse = await fetch('https://pokeapi.co/api/v2/item?limit=9999');
+            const itemsResponse = await fetch('https://pokeapi.co/api/v2/item?limit=1000');
             const itemsData = await itemsResponse.json();
             
             const extendedItemsData = itemsData.results.map(item => 

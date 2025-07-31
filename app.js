@@ -23,7 +23,6 @@ class PokemonGenerator {
             console.log('Pokemon Generator initialized successfully');
         } catch (error) {
             console.error('Initialization error:', error);
-            alert('Error initializing application. Some features may not work properly.');
         }
         this.showLoading(false);
     }
@@ -40,11 +39,8 @@ class PokemonGenerator {
     async loadInitialData() {
         try {
             console.log('Loading complete Pokemon database...');
-            // Load Pokemon with a more reasonable limit and better error handling
+            // Load ALL Pokemon (up to 1025 to include all current Pokemon)
             const pokemonResponse = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1025');
-            if (!pokemonResponse.ok) {
-                throw new Error(`Pokemon API error: ${pokemonResponse.status}`);
-            }
             const pokemonData = await pokemonResponse.json();
             this.pokemonList = pokemonData.results.map(pokemon => ({
                 name: pokemon.name,
@@ -52,7 +48,22 @@ class PokemonGenerator {
             }));
             console.log(`Loaded ${this.pokemonList.length} Pokemon`);
 
-            // Load competitive items list
+            console.log('Loading complete items database...');
+            // Load ALL held items
+            const itemsResponse = await fetch('https://pokeapi.co/api/v2/item?limit=2000');
+            const itemsData = await itemsResponse.json();
+            
+            // Filter for actual held items (exclude key items, TMs, berries that aren't held, etc.)
+            const heldItemCategories = [
+                'held-items', 'choice', 'effort-training', 'bad-held-items', 
+                'training', 'plates', 'species-specific', 'type-enhancement',
+                'in-a-pinch', 'picky-healing', 'collectibles', 'evolution',
+                'spelunking', 'held-items', 'jewels', 'mulch', 'species-specific',
+                'type-protection', 'mega-stones', 'memories', 'z-crystals'
+            ];
+            
+            // For now, let's load a comprehensive list of commonly used competitive items
+            // This is more reliable than trying to filter the entire API response
             const competitiveItems = [
                 'leftovers', 'life-orb', 'choice-band', 'choice-scarf', 'choice-specs',
                 'focus-sash', 'assault-vest', 'rocky-helmet', 'heat-rock', 'light-clay',
@@ -78,7 +89,12 @@ class PokemonGenerator {
                 'silk-scarf', 'black-belt', 'sharp-beak', 'poison-barb', 'soft-sand',
                 'hard-stone', 'silver-powder', 'spell-tag', 'metal-coat', 'charcoal',
                 'mystic-water', 'miracle-seed', 'magnet', 'twisted-spoon', 'never-melt-ice',
-                'dragon-fang', 'black-glasses', 'pink-bow', 'fairy-feather'
+                'dragon-fang', 'black-glasses', 'pink-bow', 'fairy-feather',
+                // Plates and Z-Crystals (if relevant)
+                'draco-plate', 'dread-plate', 'earth-plate', 'fist-plate', 'flame-plate',
+                'icicle-plate', 'insect-plate', 'iron-plate', 'meadow-plate', 'mind-plate',
+                'pixie-plate', 'sky-plate', 'splash-plate', 'spooky-plate', 'stone-plate',
+                'toxic-plate', 'zap-plate'
             ];
 
             this.items = competitiveItems.map(item => ({
@@ -90,42 +106,25 @@ class PokemonGenerator {
 
         } catch (error) {
             console.error('Error loading initial data:', error);
-            // Fallback with basic data to ensure app works
+            // Fallback with basic data
             this.pokemonList = [
                 {name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/'},
-                {name: 'ivysaur', url: 'https://pokeapi.co/api/v2/pokemon/2/'},
-                {name: 'venusaur', url: 'https://pokeapi.co/api/v2/pokemon/3/'},
                 {name: 'charmander', url: 'https://pokeapi.co/api/v2/pokemon/4/'},
-                {name: 'charmeleon', url: 'https://pokeapi.co/api/v2/pokemon/5/'},
-                {name: 'charizard', url: 'https://pokeapi.co/api/v2/pokemon/6/'},
                 {name: 'squirtle', url: 'https://pokeapi.co/api/v2/pokemon/7/'},
-                {name: 'wartortle', url: 'https://pokeapi.co/api/v2/pokemon/8/'},
-                {name: 'blastoise', url: 'https://pokeapi.co/api/v2/pokemon/9/'},
-                {name: 'pikachu', url: 'https://pokeapi.co/api/v2/pokemon/25/'},
-                {name: 'raichu', url: 'https://pokeapi.co/api/v2/pokemon/26/'},
-                {name: 'mewtwo', url: 'https://pokeapi.co/api/v2/pokemon/150/'},
-                {name: 'mew', url: 'https://pokeapi.co/api/v2/pokemon/151/'}
+                {name: 'pikachu', url: 'https://pokeapi.co/api/v2/pokemon/25/'}
             ];
             this.items = [
                 {name: 'Leftovers', value: 'leftovers'},
                 {name: 'Life Orb', value: 'life-orb'},
-                {name: 'Choice Band', value: 'choice-band'},
-                {name: 'Choice Scarf', value: 'choice-scarf'},
-                {name: 'Focus Sash', value: 'focus-sash'}
+                {name: 'Choice Band', value: 'choice-band'}
             ];
-            console.log('Using fallback Pokemon and items data');
         }
     }
 
     setupEventListeners() {
-        // Pokemon search with improved error handling
+        // Pokemon search
         const pokemonSearch = document.getElementById('pokemon-search');
         const suggestions = document.getElementById('pokemon-suggestions');
-        
-        if (!pokemonSearch || !suggestions) {
-            console.error('Required DOM elements not found');
-            return;
-        }
         
         pokemonSearch.addEventListener('input', (e) => {
             console.log('Search input:', e.target.value);
@@ -135,107 +134,86 @@ class PokemonGenerator {
         pokemonSearch.addEventListener('keydown', (e) => this.handleSearchKeydown(e));
         
         pokemonSearch.addEventListener('focus', (e) => {
-            if (e.target.value.length >= 1) {
+            if (e.target.value.length >= 2) {
                 this.handlePokemonSearch(e.target.value);
             }
         });
         
         pokemonSearch.addEventListener('blur', () => {
-            setTimeout(() => suggestions.classList.add('hidden'), 300);
+            setTimeout(() => suggestions.classList.add('hidden'), 200);
         });
 
-        // EV validation with better error handling
+        // EV validation
         const evInputs = document.querySelectorAll('.ev-input');
         evInputs.forEach(input => {
             input.addEventListener('input', () => this.validateEVs());
         });
 
         // Shiny toggle
-        const shinyCheckbox = document.getElementById('shiny');
-        if (shinyCheckbox) {
-            shinyCheckbox.addEventListener('change', (e) => {
-                this.updateSprite(e.target.checked);
-            });
-        }
+        document.getElementById('shiny').addEventListener('change', (e) => {
+            this.updateSprite(e.target.checked);
+        });
 
         // Generate button
-        const generateBtn = document.getElementById('generate-btn');
-        if (generateBtn) {
-            generateBtn.addEventListener('click', () => {
-                console.log('Generate button clicked');
-                this.generatePokemon();
-            });
-        }
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            console.log('Generate button clicked');
+            this.generatePokemon();
+        });
 
         // Copy button
-        const copyBtn = document.getElementById('copy-discord');
-        if (copyBtn) {
-            copyBtn.addEventListener('click', () => this.copyToClipboard());
-        }
+        document.getElementById('copy-discord').addEventListener('click', () => this.copyToClipboard());
     }
 
     populateStaticDropdowns() {
         // Nature dropdown
         const natureSelect = document.getElementById('nature');
-        if (natureSelect) {
-            natureSelect.innerHTML = '<option value="">Select nature...</option>';
-            this.natures.forEach(nature => {
-                const option = document.createElement('option');
-                option.value = nature;
-                option.textContent = nature;
-                natureSelect.appendChild(option);
-            });
-        }
+        natureSelect.innerHTML = '<option value="">Select nature...</option>';
+        this.natures.forEach(nature => {
+            const option = document.createElement('option');
+            option.value = nature;
+            option.textContent = nature;
+            natureSelect.appendChild(option);
+        });
 
         // Ball dropdown
         const ballSelect = document.getElementById('ball');
-        if (ballSelect) {
-            ballSelect.innerHTML = '<option value="">Select ball...</option>';
-            this.balls.forEach(ball => {
-                const option = document.createElement('option');
-                option.value = ball;
-                option.textContent = ball;
-                ballSelect.appendChild(option);
-            });
-        }
+        ballSelect.innerHTML = '<option value="">Select ball...</option>';
+        this.balls.forEach(ball => {
+            const option = document.createElement('option');
+            option.value = ball;
+            option.textContent = ball;
+            ballSelect.appendChild(option);
+        });
 
-        // Item dropdown
+        // Item dropdown - now with complete database
         const itemSelect = document.getElementById('held-item');
-        if (itemSelect) {
-            itemSelect.innerHTML = '<option value="">No item</option>';
-            this.items.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.value;
-                option.textContent = item.name;
-                itemSelect.appendChild(option);
-            });
-        }
+        itemSelect.innerHTML = '<option value="">No item</option>';
+        this.items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.value;
+            option.textContent = item.name;
+            itemSelect.appendChild(option);
+        });
         
-        console.log('Static dropdowns populated');
+        console.log('Static dropdowns populated with complete databases');
     }
 
     handlePokemonSearch(query) {
         const suggestions = document.getElementById('pokemon-suggestions');
         
-        if (!suggestions) {
-            console.error('Suggestions element not found');
-            return;
-        }
-        
-        if (query.length < 1) {
+        if (query.length < 2) {
             suggestions.classList.add('hidden');
             return;
         }
 
         const filtered = this.pokemonList.filter(pokemon => 
             pokemon.name.toLowerCase().includes(query.toLowerCase())
-        ).slice(0, 8);
+        ).slice(0, 10);
 
         console.log(`Found ${filtered.length} matches for "${query}"`);
 
         if (filtered.length === 0) {
-            suggestions.innerHTML = '<div class="suggestion-item">No Pokemon found</div>';
-            suggestions.classList.remove('hidden');
+            suggestions.classList.add('hidden');
             return;
         }
 
@@ -245,7 +223,7 @@ class PokemonGenerator {
             div.className = 'suggestion-item';
             div.textContent = this.formatName(pokemon.name);
             div.addEventListener('mousedown', (e) => {
-                e.preventDefault();
+                e.preventDefault(); // Prevent blur event
                 this.selectPokemon(pokemon);
             });
             suggestions.appendChild(div);
@@ -257,8 +235,6 @@ class PokemonGenerator {
 
     handleSearchKeydown(e) {
         const suggestions = document.getElementById('pokemon-suggestions');
-        if (!suggestions) return;
-        
         const items = suggestions.querySelectorAll('.suggestion-item');
         
         if (items.length === 0) return;
@@ -277,9 +253,8 @@ class PokemonGenerator {
             case 'Enter':
                 e.preventDefault();
                 if (this.currentSuggestionIndex >= 0) {
-                    const selectedText = items[this.currentSuggestionIndex].textContent;
                     const selectedPokemon = this.pokemonList.find(p => 
-                        this.formatName(p.name) === selectedText
+                        this.formatName(p.name) === items[this.currentSuggestionIndex].textContent
                     );
                     if (selectedPokemon) {
                         this.selectPokemon(selectedPokemon);
@@ -325,17 +300,13 @@ class PokemonGenerator {
             };
 
             // Update UI
-            const pokemonSearchInput = document.getElementById('pokemon-search');
-            const pokemonSuggestions = document.getElementById('pokemon-suggestions');
-            const nicknameInput = document.getElementById('nickname');
-            
-            if (pokemonSearchInput) pokemonSearchInput.value = this.formatName(pokemon.name);
-            if (pokemonSuggestions) pokemonSuggestions.classList.add('hidden');
-            if (nicknameInput) nicknameInput.value = this.formatName(pokemon.name);
+            document.getElementById('pokemon-search').value = this.formatName(pokemon.name);
+            document.getElementById('pokemon-suggestions').classList.add('hidden');
+            document.getElementById('nickname').value = this.formatName(pokemon.name);
             
             this.updateGenderDropdown(speciesData.gender_rate);
             this.updateAbilities();
-            await this.updateMoves();
+            await this.updateMoves(); // Make this async to load moves properly
             this.updateSprite(false);
             
             console.log('Pokemon selection complete');
@@ -351,8 +322,6 @@ class PokemonGenerator {
     updateGenderDropdown(genderRate) {
         const genderGroup = document.getElementById('gender-group');
         const genderSelect = document.getElementById('gender');
-        
-        if (!genderGroup || !genderSelect) return;
         
         console.log('Gender rate:', genderRate);
         
@@ -377,9 +346,9 @@ class PokemonGenerator {
 
     updateAbilities() {
         const abilitySelect = document.getElementById('ability');
-        if (!abilitySelect || !this.pokemonData.abilities) return;
-        
         abilitySelect.innerHTML = '<option value="">Select ability...</option>';
+        
+        if (!this.pokemonData.abilities) return;
         
         // Add regular abilities first
         this.pokemonData.abilities.forEach(abilityData => {
@@ -422,8 +391,6 @@ class PokemonGenerator {
         
         moveSelects.forEach(selectId => {
             const select = document.getElementById(selectId);
-            if (!select) return;
-            
             select.innerHTML = '<option value="">Select move...</option>';
             
             moves.forEach(move => {
@@ -442,8 +409,6 @@ class PokemonGenerator {
         
         const sprite = document.getElementById('pokemon-sprite');
         const placeholder = document.querySelector('.sprite-placeholder');
-        
-        if (!sprite) return;
         
         const spriteUrl = isShiny 
             ? this.pokemonData.sprites.front_shiny || this.pokemonData.sprites.front_default
@@ -472,24 +437,12 @@ class PokemonGenerator {
         });
         
         const evCounter = document.getElementById('ev-total');
-        const totalEvsDisplay = document.getElementById('total-evs-display');
+        evCounter.textContent = `${total}/510`;
         
-        if (evCounter) {
-            evCounter.textContent = `${total}/510`;
-            if (total > 510) {
-                evCounter.classList.add('over-limit');
-            } else {
-                evCounter.classList.remove('over-limit');
-            }
-        }
-        
-        if (totalEvsDisplay) {
-            totalEvsDisplay.textContent = `${total}/510`;
-            if (total > 510) {
-                totalEvsDisplay.classList.add('over-limit');
-            } else {
-                totalEvsDisplay.classList.remove('over-limit');
-            }
+        if (total > 510) {
+            evCounter.classList.add('over-limit');
+        } else {
+            evCounter.classList.remove('over-limit');
         }
         
         return total <= 510;
@@ -513,16 +466,11 @@ class PokemonGenerator {
         const discordOutput = this.formatDiscordOutput(pokemonData);
         console.log('Generated output:', discordOutput);
         
-        const outputElement = document.getElementById('discord-output');
-        const outputSection = document.getElementById('output-section');
+        document.getElementById('discord-output').textContent = discordOutput;
+        document.getElementById('output-section').classList.remove('hidden');
         
-        if (outputElement && outputSection) {
-            outputElement.textContent = discordOutput;
-            outputSection.classList.remove('hidden');
-            
-            // Scroll to output
-            outputSection.scrollIntoView({ behavior: 'smooth' });
-        }
+        // Scroll to output
+        document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
     }
 
     validateForm() {
@@ -535,8 +483,8 @@ class PokemonGenerator {
         
         requiredFields.forEach(field => {
             const element = document.getElementById(field.id);
-            if (!element || !element.value) {
-                if (element) element.classList.add('error');
+            if (!element.value) {
+                element.classList.add('error');
                 missingFields.push(field.name);
                 isValid = false;
             } else {
@@ -567,55 +515,44 @@ class PokemonGenerator {
         } else if (genderRate === 8) {
             gender = 'F'; // Female-only
         } else {
-            const genderSelect = document.getElementById('gender');
-            gender = genderSelect ? genderSelect.value : 'M';
+            gender = document.getElementById('gender').value; // User selection
         }
         
-        const getValue = (id, defaultValue = '') => {
-            const element = document.getElementById(id);
-            return element ? element.value : defaultValue;
-        };
-
-        const getChecked = (id) => {
-            const element = document.getElementById(id);
-            return element ? element.checked : false;
-        };
-        
         return {
-            nickname: getValue('nickname') || this.formatName(this.selectedPokemon.name),
+            nickname: document.getElementById('nickname').value || this.formatName(this.selectedPokemon.name),
             species: this.formatName(this.selectedPokemon.name),
             gender: gender,
-            level: getValue('level', '50'),
-            ability: this.formatName(getValue('ability')),
-            nature: getValue('nature'),
-            heldItem: getValue('held-item') ? this.formatName(getValue('held-item')) : '',
-            ball: getValue('ball', 'Poke Ball'),
-            shiny: getChecked('shiny'),
-            ot: getValue('ot', 'Trainer'),
-            tid: getValue('tid', '12345'),
-            sid: getValue('sid', '54321'),
-            otGender: getValue('ot-gender', 'M'),
+            level: document.getElementById('level').value || '50',
+            ability: this.formatName(document.getElementById('ability').value),
+            nature: document.getElementById('nature').value,
+            heldItem: document.getElementById('held-item').value ? this.formatName(document.getElementById('held-item').value) : '',
+            ball: document.getElementById('ball').value || 'Poke Ball',
+            shiny: document.getElementById('shiny').checked,
+            ot: document.getElementById('ot').value || 'Trainer',
+            tid: document.getElementById('tid').value || '12345',
+            sid: document.getElementById('sid').value || '54321',
+            otGender: document.getElementById('ot-gender').value || 'M',
             ivs: {
-                hp: getValue('iv-hp', '31'),
-                atk: getValue('iv-atk', '31'),
-                def: getValue('iv-def', '31'),
-                spa: getValue('iv-spa', '31'),
-                spd: getValue('iv-spd', '31'),
-                spe: getValue('iv-spe', '31')
+                hp: document.getElementById('iv-hp').value || '31',
+                atk: document.getElementById('iv-atk').value || '31',
+                def: document.getElementById('iv-def').value || '31',
+                spa: document.getElementById('iv-spa').value || '31',
+                spd: document.getElementById('iv-spd').value || '31',
+                spe: document.getElementById('iv-spe').value || '31'
             },
             evs: {
-                hp: getValue('ev-hp', '0'),
-                atk: getValue('ev-atk', '0'),
-                def: getValue('ev-def', '0'),
-                spa: getValue('ev-spa', '0'),
-                spd: getValue('ev-spd', '0'),
-                spe: getValue('ev-spe', '0')
+                hp: document.getElementById('ev-hp').value || '0',
+                atk: document.getElementById('ev-atk').value || '0',
+                def: document.getElementById('ev-def').value || '0',
+                spa: document.getElementById('ev-spa').value || '0',
+                spd: document.getElementById('ev-spd').value || '0',
+                spe: document.getElementById('ev-spe').value || '0'
             },
             moves: [
-                getValue('move1') ? this.formatName(getValue('move1')) : '',
-                getValue('move2') ? this.formatName(getValue('move2')) : '',
-                getValue('move3') ? this.formatName(getValue('move3')) : '',
-                getValue('move4') ? this.formatName(getValue('move4')) : ''
+                document.getElementById('move1').value ? this.formatName(document.getElementById('move1').value) : '',
+                document.getElementById('move2').value ? this.formatName(document.getElementById('move2').value) : '',
+                document.getElementById('move3').value ? this.formatName(document.getElementById('move3').value) : '',
+                document.getElementById('move4').value ? this.formatName(document.getElementById('move4').value) : ''
             ].filter(move => move !== '')
         };
     }
@@ -689,13 +626,11 @@ class PokemonGenerator {
         try {
             await navigator.clipboard.writeText(text);
             const button = document.getElementById('copy-discord');
-            if (button) {
-                const originalText = button.textContent;
-                button.textContent = 'Copied!';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                }, 2000);
-            }
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
         } catch (err) {
             console.error('Failed to copy text: ', err);
             // Fallback method
@@ -707,13 +642,11 @@ class PokemonGenerator {
             document.body.removeChild(textArea);
             
             const button = document.getElementById('copy-discord');
-            if (button) {
-                const originalText = button.textContent;
-                button.textContent = 'Copied!';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                }, 2000);
-            }
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
         }
     }
 
