@@ -1061,9 +1061,9 @@ class PokemonGenerator {
         output += `${displayName} (${data.species})`;
         if (data.gender) output += ` (${data.gender})`;
         if (data.item !== 'None') output += ` @ ${data.item}`;
-        output += `\nOT: ${data.ot}`;
-        output += `\nTID: ${data.tid}`;
-        output += `\nSID: ${data.sid}`;
+        if (data.ot && data.ot.trim() !== "") output += `\nOT: ${data.ot}`;
+	if (data.tid && data.tid.trim() !== "") output += `\nTID: ${data.tid}`;
+	if (data.sid && data.sid.trim() !== "") output += `\nSID: ${data.sid}`;
         output += `\nOTGender: ${data.otGender}`;
         output += `\nLanguage: English`;
         output += `\nAbility: ${data.ability}`;

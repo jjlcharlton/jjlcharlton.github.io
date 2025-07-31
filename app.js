@@ -524,13 +524,13 @@ class PokemonGenerator {
             gender: gender,
             level: document.getElementById('level').value || '50',
             ability: this.formatName(document.getElementById('ability').value),
-            nature: document.getElementById('nature').value,
+            nature: document.getElementById('nature').value || 'Timid',
             heldItem: document.getElementById('held-item').value ? this.formatName(document.getElementById('held-item').value) : '',
             ball: document.getElementById('ball').value || 'Poke Ball',
             shiny: document.getElementById('shiny').checked,
-            ot: document.getElementById('ot').value || 'Trainer',
-            tid: document.getElementById('tid').value || '12345',
-            sid: document.getElementById('sid').value || '54321',
+            ot: document.getElementById('ot').value || '',
+            tid: document.getElementById('tid').value || '',
+            sid: document.getElementById('sid').value || '',
             otGender: document.getElementById('ot-gender').value || 'M',
             ivs: {
                 hp: document.getElementById('iv-hp').value || '31',
@@ -571,10 +571,23 @@ class PokemonGenerator {
         output += '\n';
         
         // Trainer info
-        output += `OT: ${data.ot}\n`;
-        output += `TID: ${data.tid}\n`;
-        output += `SID: ${data.sid}\n`;
-        output += `OTGender: ${data.otGender}\n`;
+	
+        if (data.ot !== ``) {
+            	output += `OT: ${data.ot}\n`;
+        } ;
+
+	if (data.tid !== ``) {
+            	output += `OT: ${data.tid}\n`;
+        } ;
+
+	if (data.sid !== ``) {
+            	output += `OT: ${data.sid}\n`;
+        } ;
+
+	if (data.ot !== ``) {
+            	output += `OTGender: ${data.otGender}\n`;
+        } ;
+
         output += `Language: English\n`;
         
         // Pokemon details
