@@ -1,816 +1,1027 @@
-// Pokemon Generator Pro - Complete Application Logic
-
+// Pokemon Generator with Complete PokéAPI Integration - FIXED VERSION
 class PokemonGenerator {
     constructor() {
-        this.profiles = [];
-        this.currentProfile = null;
-        this.pokemonData = {};
-        this.ballTypes = [];
-        this.heldItems = [];
-        this.natures = [];
-        this.moves = [];
+        this.pokemonData = [];
+        this.itemsData = [];
+        this.movesData = [];
+        this.currentPokemon = null;
+        this.selectedMoves = ['', '', '', ''];
         
-        this.init();
-    }
+        this.natures = [
+            'Hardy', 'Lonely', 'Brave', 'Adamant', 'Naughty', 'Bold', 'Docile', 'Relaxed',
+            'Impish', 'Lax', 'Timid', 'Hasty', 'Serious', 'Jolly', 'Naive', 'Modest',
+            'Mild', 'Quiet', 'Bashful', 'Rash', 'Calm', 'Gentle', 'Sassy', 'Careful', 'Quirky'
+        ];
 
-    init() {
-        this.loadData();
-        this.setupEventListeners();
-        this.loadProfiles();
-        this.updateDatabaseStats();
-        this.validateForm();
-    }
+        this.balls = [
+            'Poke Ball', 'Great Ball', 'Ultra Ball', 'Master Ball', 'Premier Ball', 'Luxury Ball',
+            'Heal Ball', 'Net Ball', 'Dive Ball', 'Nest Ball', 'Repeat Ball', 'Timer Ball',
+            'Quick Ball', 'Dusk Ball', 'Cherish Ball', 'Friend Ball', 'Level Ball', 'Love Ball',
+            'Lure Ball', 'Heavy Ball', 'Fast Ball', 'Moon Ball', 'Beast Ball', 'Dream Ball'
+        ];
 
-    loadData() {
-        // Complete Pokemon Database (1025+ Pokemon with regional forms)
-        this.pokemonData = {
-            // Kanto Pokemon
-            "bulbasaur": { id: 1, name: "Bulbasaur", types: ["Grass", "Poison"], abilities: ["Overgrow"], hiddenAbility: "Chlorophyll", moves: ["Tackle", "Growl", "Vine Whip", "Sleep Powder", "Take Down", "Razor Leaf", "Sweet Scent", "Growth", "Double-Edge", "Worry Seed", "Synthesis", "Seed Bomb"], genderRatio: 0.875, eggGroups: ["Monster", "Grass"] },
-            "ivysaur": { id: 2, name: "Ivysaur", types: ["Grass", "Poison"], abilities: ["Overgrow"], hiddenAbility: "Chlorophyll", moves: ["Tackle", "Growl", "Vine Whip", "Sleep Powder", "Take Down", "Razor Leaf", "Sweet Scent", "Growth", "Double-Edge", "Worry Seed", "Synthesis", "Seed Bomb"], genderRatio: 0.875, eggGroups: ["Monster", "Grass"] },
-            "venusaur": { id: 3, name: "Venusaur", types: ["Grass", "Poison"], abilities: ["Overgrow"], hiddenAbility: "Chlorophyll", moves: ["Tackle", "Growl", "Vine Whip", "Sleep Powder", "Take Down", "Razor Leaf", "Sweet Scent", "Growth", "Double-Edge", "Worry Seed", "Synthesis", "Seed Bomb", "Petal Dance", "Petal Blizzard"], genderRatio: 0.875, eggGroups: ["Monster", "Grass"] },
-            "charmander": { id: 4, name: "Charmander", types: ["Fire"], abilities: ["Blaze"], hiddenAbility: "Solar Power", moves: ["Scratch", "Growl", "Ember", "Smokescreen", "Dragon Rage", "Scary Face", "Fire Fang", "Flame Burst", "Slash", "Flamethrower", "Fire Spin", "Inferno"], genderRatio: 0.875, eggGroups: ["Monster", "Dragon"] },
-            "charmeleon": { id: 5, name: "Charmeleon", types: ["Fire"], abilities: ["Blaze"], hiddenAbility: "Solar Power", moves: ["Scratch", "Growl", "Ember", "Smokescreen", "Dragon Rage", "Scary Face", "Fire Fang", "Flame Burst", "Slash", "Flamethrower", "Fire Spin", "Inferno"], genderRatio: 0.875, eggGroups: ["Monster", "Dragon"] },
-            "charizard": { id: 6, name: "Charizard", types: ["Fire", "Flying"], abilities: ["Blaze"], hiddenAbility: "Solar Power", moves: ["Flamethrower", "Air Slash", "Dragon Pulse", "Solar Beam", "Heat Wave", "Focus Blast", "Wing Attack", "Fire Blast", "Dragon Claw", "Roost"], genderRatio: 0.875, eggGroups: ["Monster", "Dragon"] },
-            "squirtle": { id: 7, name: "Squirtle", types: ["Water"], abilities: ["Torrent"], hiddenAbility: "Rain Dish", moves: ["Tackle", "Tail Whip", "Water Gun", "Withdraw", "Bubble", "Bite", "Rapid Spin", "Protect", "Water Pulse", "Aqua Tail", "Skull Bash", "Hydro Pump"], genderRatio: 0.875, eggGroups: ["Monster", "Water 1"] },
-            "wartortle": { id: 8, name: "Wartortle", types: ["Water"], abilities: ["Torrent"], hiddenAbility: "Rain Dish", moves: ["Tackle", "Tail Whip", "Water Gun", "Withdraw", "Bubble", "Bite", "Rapid Spin", "Protect", "Water Pulse", "Aqua Tail", "Skull Bash", "Hydro Pump"], genderRatio: 0.875, eggGroups: ["Monster", "Water 1"] },
-            "blastoise": { id: 9, name: "Blastoise", types: ["Water"], abilities: ["Torrent"], hiddenAbility: "Rain Dish", moves: ["Flash Cannon", "Tackle", "Tail Whip", "Water Gun", "Withdraw", "Bubble", "Bite", "Rapid Spin", "Protect", "Water Pulse", "Aqua Tail", "Skull Bash", "Hydro Pump"], genderRatio: 0.875, eggGroups: ["Monster", "Water 1"] },
-            "caterpie": { id: 10, name: "Caterpie", types: ["Bug"], abilities: ["Shield Dust"], hiddenAbility: "Run Away", moves: ["Tackle", "String Shot", "Bug Bite"], genderRatio: 0.5, eggGroups: ["Bug"] },
-            "metapod": { id: 11, name: "Metapod", types: ["Bug"], abilities: ["Shed Skin"], hiddenAbility: null, moves: ["Harden"], genderRatio: 0.5, eggGroups: ["Bug"] },
-            "butterfree": { id: 12, name: "Butterfree", types: ["Bug", "Flying"], abilities: ["Compound Eyes"], hiddenAbility: "Tinted Lens", moves: ["Gust", "Confusion", "Poison Powder", "Stun Spore", "Sleep Powder", "Psybeam", "Silver Wind", "Supersonic", "Safeguard", "Whirlwind", "Bug Buzz", "Rage Powder"], genderRatio: 0.5, eggGroups: ["Bug"] },
-            
-            // Continue with more Pokemon...
-            "pichu": { id: 172, name: "Pichu", types: ["Electric"], abilities: ["Static"], hiddenAbility: "Lightning Rod", moves: ["Thunder Shock", "Charm", "Tail Whip", "Sweet Kiss", "Nasty Plot", "Thunder Wave", "Encore"], genderRatio: 0.5, eggGroups: ["Undiscovered"] },
-            "pikachu": { id: 25, name: "Pikachu", types: ["Electric"], abilities: ["Static"], hiddenAbility: "Lightning Rod", moves: ["Thunderbolt", "Quick Attack", "Iron Tail", "Thunder Wave", "Agility", "Double Team", "Surf", "Volt Tackle", "Electro Ball", "Nuzzle", "Discharge"], genderRatio: 0.5, eggGroups: ["Field", "Fairy"] },
-            "raichu": { id: 26, name: "Raichu", types: ["Electric"], abilities: ["Static"], hiddenAbility: "Lightning Rod", moves: ["Thunderbolt", "Thunder", "Quick Attack", "Iron Tail", "Thunder Wave", "Agility", "Double Team", "Focus Blast", "Brick Break", "Volt Tackle"], genderRatio: 0.5, eggGroups: ["Field", "Fairy"] },
-            
-            // Alolan Forms
-            "raichu-alola": { id: 26, name: "Raichu", form: "Alolan", types: ["Electric", "Psychic"], abilities: ["Surge Surfer"], hiddenAbility: null, moves: ["Psychic", "Thunderbolt", "Thunder", "Quick Attack", "Iron Tail", "Thunder Wave", "Agility", "Double Team", "Focus Blast", "Psyshock"], genderRatio: 0.5, eggGroups: ["Field", "Fairy"] },
-            "vulpix-alola": { id: 37, name: "Vulpix", form: "Alolan", types: ["Ice"], abilities: ["Snow Cloak"], hiddenAbility: "Snow Warning", moves: ["Powder Snow", "Tail Whip", "Roar", "Baby-Doll Eyes", "Ice Shard", "Confuse Ray", "Icy Wind", "Payback", "Mist", "Aurora Beam", "Extrasensory", "Safeguard", "Ice Beam", "Imprison", "Blizzard", "Grudge", "Captivate", "Sheer Cold"], genderRatio: 0.25, eggGroups: ["Field"] },
-            "ninetales-alola": { id: 38, name: "Ninetales", form: "Alolan", types: ["Ice", "Fairy"], abilities: ["Snow Cloak"], hiddenAbility: "Snow Warning", moves: ["Dazzling Gleam", "Imprison", "Nasty Plot", "Ice Beam", "Ice Shard", "Confuse Ray", "Safeguard", "Payback", "Aurora Beam", "Extrasensory", "Blizzard", "Sheer Cold", "Moonblast"], genderRatio: 0.25, eggGroups: ["Field"] },
-            
-            // Galarian Forms
-            "meowth-galar": { id: 52, name: "Meowth", form: "Galarian", types: ["Steel"], abilities: ["Pickup", "Tough Claws"], hiddenAbility: "Unnerve", moves: ["Fake Out", "Growl", "Hone Claws", "Scratch", "Pay Day", "Metal Claw", "Taunt", "Swagger", "Fury Swipes", "Screech", "Slash", "Metal Sound", "Thrash"], genderRatio: 0.5, eggGroups: ["Field"] },
-            "ponyta-galar": { id: 77, name: "Ponyta", form: "Galarian", types: ["Psychic"], abilities: ["Run Away", "Pastel Veil"], hiddenAbility: "Anticipation", moves: ["Growl", "Tackle", "Tail Whip", "Confusion", "Fairy Wind", "Agility", "Psybeam", "Stomp", "Heal Pulse", "Dazzling Gleam", "Psychic", "Healing Wish"], genderRatio: 0.5, eggGroups: ["Field"] },
-            "rapidash-galar": { id: 78, name: "Rapidash", form: "Galarian", types: ["Psychic", "Fairy"], abilities: ["Run Away", "Pastel Veil"], hiddenAbility: "Anticipation", moves: ["Megahorn", "Psycho Cut", "Quick Attack", "Growl", "Tackle", "Tail Whip", "Confusion", "Fairy Wind", "Agility", "Psybeam", "Stomp", "Heal Pulse", "Dazzling Gleam", "Smart Strike", "Psychic", "Healing Wish"], genderRatio: 0.5, eggGroups: ["Field"] },
-            
-            // Hisuian Forms
-            "growlithe-hisui": { id: 58, name: "Growlithe", form: "Hisuian", types: ["Fire", "Rock"], abilities: ["Intimidate", "Flash Fire"], hiddenAbility: "Rock Head", moves: ["Bite", "Roar", "Ember", "Leer", "Odor Sleuth", "Helping Hand", "Flame Wheel", "Reversal", "Fire Fang", "Take Down", "Flame Burst", "Agility", "Retaliate", "Flamethrower", "Crunch", "Heat Wave", "Outrage", "Flare Blitz"], genderRatio: 0.75, eggGroups: ["Field"] },
-            "arcanine-hisui": { id: 59, name: "Arcanine", form: "Hisuian", types: ["Fire", "Rock"], abilities: ["Intimidate", "Flash Fire"], hiddenAbility: "Rock Head", moves: ["Thunder Fang", "Bite", "Roar", "Fire Fang", "Odor Sleuth", "Rock Slide", "Extreme Speed", "Head Smash", "Crunch", "Raging Fury"], genderRatio: 0.75, eggGroups: ["Field"] },
-            "voltorb-hisui": { id: 100, name: "Voltorb", form: "Hisuian", types: ["Electric", "Grass"], abilities: ["Soundproof", "Static"], hiddenAbility: "Aftermath", moves: ["Charge", "Tackle", "Sonic Boom", "Eerie Impulse", "Spark", "Rollout", "Screech", "Charge Beam", "Swift", "Electro Ball", "Self-Destruct", "Light Screen", "Magnet Rise", "Discharge", "Explosion", "Gyro Ball"], genderRatio: null, eggGroups: ["Mineral"] },
-            
-            // Paldean Forms
-            "tauros-paldea-combat": { id: 128, name: "Tauros", form: "Paldean Combat Breed", types: ["Fighting"], abilities: ["Intimidate", "Anger Point"], hiddenAbility: "Cud Chew", moves: ["Tackle", "Tail Whip", "Rage", "Horn Attack", "Scary Face", "Pursuit", "Rest", "Payback", "Work Up", "Zen Headbutt", "Take Down", "Swagger", "Thrash", "Giga Impact", "Close Combat"], genderRatio: 1.0, eggGroups: ["Field"] },
-            "tauros-paldea-blaze": { id: 128, name: "Tauros", form: "Paldean Blaze Breed", types: ["Fighting", "Fire"], abilities: ["Intimidate", "Anger Point"], hiddenAbility: "Cud Chew", moves: ["Tackle", "Tail Whip", "Rage", "Horn Attack", "Scary Face", "Pursuit", "Rest", "Payback", "Work Up", "Zen Headbutt", "Take Down", "Swagger", "Thrash", "Giga Impact", "Close Combat", "Flare Blitz", "Raging Bull"], genderRatio: 1.0, eggGroups: ["Field"] },
-            "tauros-paldea-aqua": { id: 128, name: "Tauros", form: "Paldean Aqua Breed", types: ["Fighting", "Water"], abilities: ["Intimidate", "Anger Point"], hiddenAbility: "Cud Chew", moves: ["Tackle", "Tail Whip", "Rage", "Horn Attack", "Scary Face", "Pursuit", "Rest", "Payback", "Work Up", "Zen Headbutt", "Take Down", "Swagger", "Thrash", "Giga Impact", "Close Combat", "Wave Crash", "Raging Bull"], genderRatio: 1.0, eggGroups: ["Field"] },
-            
-            // Gen 9 Pokemon
-            "sprigatito": { id: 906, name: "Sprigatito", types: ["Grass"], abilities: ["Overgrow"], hiddenAbility: "Protean", moves: ["Scratch", "Tail Whip", "Leafage", "Hone Claws", "Quick Attack", "Magical Leaf", "Bite", "U-turn", "Worry Seed", "Assurance", "Slash", "Seed Bomb", "Sucker Punch", "Energy Ball", "Play Rough"], genderRatio: 0.875, eggGroups: ["Field", "Grass"] },
-            "floragato": { id: 907, name: "Floragato", types: ["Grass"], abilities: ["Overgrow"], hiddenAbility: "Protean", moves: ["Scratch", "Tail Whip", "Leafage", "Hone Claws", "Quick Attack", "Magical Leaf", "Bite", "U-turn", "Worry Seed", "Assurance", "Slash", "Seed Bomb", "Sucker Punch", "Energy Ball", "Play Rough"], genderRatio: 0.875, eggGroups: ["Field", "Grass"] },
-            "meowscarada": { id: 908, name: "Meowscarada", types: ["Grass", "Dark"], abilities: ["Overgrow"], hiddenAbility: "Protean", moves: ["Flower Trick", "Scratch", "Tail Whip", "Leafage", "Hone Claws", "Quick Attack", "Magical Leaf", "Bite", "U-turn", "Worry Seed", "Assurance", "Slash", "Seed Bomb", "Sucker Punch", "Energy Ball", "Play Rough", "Night Slash"], genderRatio: 0.875, eggGroups: ["Field", "Grass"] },
-            
-            // Legendary Pokemon
-            "mewtwo": { id: 150, name: "Mewtwo", types: ["Psychic"], abilities: ["Pressure"], hiddenAbility: "Unnerve", moves: ["Confusion", "Disable", "Safeguard", "Swift", "Future Sight", "Psych Up", "Miracle Eye", "Psycho Cut", "Power Swap", "Guard Swap", "Psychic", "Barrier", "Aura Sphere", "Amnesia", "Mist", "Me First", "Recover", "Psystrike"], genderRatio: null, eggGroups: ["Undiscovered"] },
-            "mew": { id: 151, name: "Mew", types: ["Psychic"], abilities: ["Synchronize"], hiddenAbility: null, moves: ["Pound", "Transform", "Mega Punch", "Metronome", "Psychic", "Barrier", "Ancient Power", "Amnesia", "Me First", "Baton Pass", "Nasty Plot", "Aura Sphere", "Defog"], genderRatio: null, eggGroups: ["Undiscovered"] },
-            
-            // More Pokemon for comprehensive database
-            "garchomp": { id: 445, name: "Garchomp", types: ["Dragon", "Ground"], abilities: ["Sand Veil"], hiddenAbility: "Rough Skin", moves: ["Dragon Rush", "Fire Fang", "Tackle", "Sand Attack", "Dragon Rage", "Sandstorm", "Take Down", "Sand Tomb", "Slash", "Dragon Claw", "Dig", "Dragon Rush", "Crunch", "Earthquake", "Dragon Pulse"], genderRatio: 0.5, eggGroups: ["Monster", "Dragon"] },
-            "lucario": { id: 448, name: "Lucario", types: ["Fighting", "Steel"], abilities: ["Steadfast", "Inner Focus"], hiddenAbility: "Justified", moves: ["Aura Sphere", "Life Dew", "Final Gambit", "Reversal", "Quick Attack", "Endure", "Metal Claw", "Counter", "Feint", "Power-Up Punch", "Swords Dance", "Metal Sound", "Bone Rush", "Quick Guard", "Me First", "Work Up", "Calm Mind", "Heal Pulse", "Help Block", "Copycat", "Power Swap", "Guard Swap", "Close Combat", "Dragon Pulse", "Extreme Speed"], genderRatio: 0.875, eggGroups: ["Field", "Human-Like"] },
-            "tyranitar": { id: 248, name: "Tyranitar", types: ["Rock", "Dark"], abilities: ["Sand Stream"], hiddenAbility: "Unnerve", moves: ["Thunder Fang", "Ice Fang", "Fire Fang", "Bite", "Leer", "Sandstorm", "Screech", "Chip Away", "Rock Slide", "Scary Face", "Thrash", "Dark Pulse", "Payback", "Crunch", "Earthquake", "Stone Edge", "Hyper Beam", "Giga Impact"], genderRatio: 0.5, eggGroups: ["Monster"] },
-            "dragonite": { id: 149, name: "Dragonite", types: ["Dragon", "Flying"], abilities: ["Inner Focus"], hiddenAbility: "Multiscale", moves: ["Fire Punch", "Thunder Punch", "Roost", "Hurricane", "Wrap", "Leer", "Thunder Wave", "Twister", "Dragon Rage", "Slam", "Agility", "Dragon Tail", "Aqua Tail", "Dragon Rush", "Safeguard", "Dragon Dance", "Outrage", "Wing Attack", "Hurricane", "Hyper Beam"], genderRatio: 0.5, eggGroups: ["Water 1", "Dragon"] },
-            "mimikyu": { id: 778, name: "Mimikyu", types: ["Ghost", "Fairy"], abilities: ["Disguise"], hiddenAbility: null, moves: ["Wood Hammer", "Splash", "Scratch", "Astonish", "Copycat", "Double Team", "Baby-Doll Eyes", "Shadow Sneak", "Mimic", "Feint Attack", "Charm", "Slash", "Shadow Claw", "Hone Claws", "Play Rough", "Pain Split", "Wood Hammer"], genderRatio: 0.5, eggGroups: ["Amorphous"] }
+        this.natureEffects = {
+            'Hardy': {boost: null, drop: null}, 'Lonely': {boost: 'Attack', drop: 'Defense'},
+            'Brave': {boost: 'Attack', drop: 'Speed'}, 'Adamant': {boost: 'Attack', drop: 'Special Attack'},
+            'Naughty': {boost: 'Attack', drop: 'Special Defense'}, 'Bold': {boost: 'Defense', drop: 'Attack'},
+            'Docile': {boost: null, drop: null}, 'Relaxed': {boost: 'Defense', drop: 'Speed'},
+            'Impish': {boost: 'Defense', drop: 'Special Attack'}, 'Lax': {boost: 'Defense', drop: 'Special Defense'},
+            'Timid': {boost: 'Speed', drop: 'Attack'}, 'Hasty': {boost: 'Speed', drop: 'Defense'},
+            'Serious': {boost: null, drop: null}, 'Jolly': {boost: 'Speed', drop: 'Special Attack'},
+            'Naive': {boost: 'Speed', drop: 'Special Defense'}, 'Modest': {boost: 'Special Attack', drop: 'Attack'},
+            'Mild': {boost: 'Special Attack', drop: 'Defense'}, 'Quiet': {boost: 'Special Attack', drop: 'Speed'},
+            'Bashful': {boost: null, drop: null}, 'Rash': {boost: 'Special Attack', drop: 'Special Defense'},
+            'Calm': {boost: 'Special Defense', drop: 'Attack'}, 'Gentle': {boost: 'Special Defense', drop: 'Defense'},
+            'Sassy': {boost: 'Special Defense', drop: 'Speed'}, 'Careful': {boost: 'Special Defense', drop: 'Special Attack'},
+            'Quirky': {boost: null, drop: null}
         };
 
-        // Complete Ball Types Database
-        this.ballTypes = [
-            {"name": "Poke Ball", "id": 1}, {"name": "Great Ball", "id": 2}, {"name": "Ultra Ball", "id": 3}, {"name": "Master Ball", "id": 4},
-            {"name": "Premier Ball", "id": 12}, {"name": "Timer Ball", "id": 10}, {"name": "Repeat Ball", "id": 9}, {"name": "Luxury Ball", "id": 11},
-            {"name": "Heal Ball", "id": 14}, {"name": "Quick Ball", "id": 15}, {"name": "Dusk Ball", "id": 13}, {"name": "Net Ball", "id": 6},
-            {"name": "Dive Ball", "id": 7}, {"name": "Nest Ball", "id": 8}, {"name": "Fast Ball", "id": 17}, {"name": "Level Ball", "id": 18},
-            {"name": "Lure Ball", "id": 19}, {"name": "Heavy Ball", "id": 20}, {"name": "Love Ball", "id": 21}, {"name": "Friend Ball", "id": 22},
-            {"name": "Moon Ball", "id": 23}, {"name": "Sport Ball", "id": 24}, {"name": "Dream Ball", "id": 25}, {"name": "Beast Ball", "id": 26},
-            {"name": "Safari Ball", "id": 5}, {"name": "Cherish Ball", "id": 16}, {"name": "Park Ball", "id": 27},
-            // Legends Arceus Balls
-            {"name": "Feather Ball", "id": 28}, {"name": "Wing Ball", "id": 29}, {"name": "Jet Ball", "id": 30},
-            {"name": "Leaden Ball", "id": 31}, {"name": "Gigaton Ball", "id": 32}, {"name": "Origin Ball", "id": 33}, {"name": "Strange Ball", "id": 34}
-        ];
-
-        // Complete Held Items Database
-        this.heldItems = [
-            {"name": "None", "effect": "No effect"},
-            // Battle Items
-            {"name": "Leftovers", "effect": "Restores 1/16 HP each turn"}, {"name": "Life Orb", "effect": "Boosts move power by 30%, user takes 10% damage"},
-            {"name": "Choice Band", "effect": "Boosts Attack by 50%, locks into one move"}, {"name": "Choice Specs", "effect": "Boosts Special Attack by 50%, locks into one move"},
-            {"name": "Choice Scarf", "effect": "Boosts Speed by 50%, locks into one move"}, {"name": "Focus Sash", "effect": "Survives KO with 1 HP when at full health"},
-            {"name": "Assault Vest", "effect": "Boosts Special Defense by 50%, prevents status moves"}, {"name": "Eviolite", "effect": "Boosts Defense and Special Defense by 50% for non-fully evolved Pokemon"},
-            {"name": "Rocky Helmet", "effect": "Damages attacker by 1/6 HP when hit by contact moves"}, {"name": "Safety Goggles", "effect": "Protects from weather and powder moves"},
-            {"name": "Heavy-Duty Boots", "effect": "Protects from entry hazards"}, {"name": "Weakness Policy", "effect": "Boosts Attack and Special Attack by 2 stages when hit by super effective move"},
-            // Type-enhancing Items
-            {"name": "Black Belt", "effect": "Boosts Fighting-type moves by 20%"}, {"name": "Charcoal", "effect": "Boosts Fire-type moves by 20%"},
-            {"name": "Mystic Water", "effect": "Boosts Water-type moves by 20%"}, {"name": "Magnet", "effect": "Boosts Electric-type moves by 20%"},
-            {"name": "Miracle Seed", "effect": "Boosts Grass-type moves by 20%"}, {"name": "Never-Melt Ice", "effect": "Boosts Ice-type moves by 20%"},
-            {"name": "Poison Barb", "effect": "Boosts Poison-type moves by 20%"}, {"name": "Soft Sand", "effect": "Boosts Ground-type moves by 20%"},
-            {"name": "Sharp Beak", "effect": "Boosts Flying-type moves by 20%"}, {"name": "Twisted Spoon", "effect": "Boosts Psychic-type moves by 20%"},
-            {"name": "Silver Powder", "effect": "Boosts Bug-type moves by 20%"}, {"name": "Hard Stone", "effect": "Boosts Rock-type moves by 20%"},
-            {"name": "Spell Tag", "effect": "Boosts Ghost-type moves by 20%"}, {"name": "Dragon Fang", "effect": "Boosts Dragon-type moves by 20%"},
-            {"name": "Black Glasses", "effect": "Boosts Dark-type moves by 20%"}, {"name": "Metal Coat", "effect": "Boosts Steel-type moves by 20%"},
-            {"name": "Pink Bow", "effect": "Boosts Normal-type moves by 20%"}, {"name": "Pixie Plate", "effect": "Boosts Fairy-type moves by 20%"},
-            // Status Items
-            {"name": "Flame Orb", "effect": "Burns the holder at end of turn"}, {"name": "Toxic Orb", "effect": "Badly poisons the holder at end of turn"},
-            {"name": "Mental Herb", "effect": "Cures infatuation, taunt, encore, torment, disable, cursed body"}, {"name": "White Herb", "effect": "Restores lowered stats"},
-            {"name": "Power Herb", "effect": "Allows immediate use of charge moves"}, {"name": "Red Card", "effect": "Forces attacker to switch out"},
-            {"name": "Eject Button", "effect": "Forces holder to switch out when hit"}, {"name": "Air Balloon", "effect": "Makes holder immune to Ground moves until popped"},
-            // Berries
-            {"name": "Sitrus Berry", "effect": "Restores 1/4 HP when below 50% HP"}, {"name": "Lum Berry", "effect": "Cures any status condition"},
-            {"name": "Chesto Berry", "effect": "Cures sleep"}, {"name": "Pecha Berry", "effect": "Cures poison"}, {"name": "Rawst Berry", "effect": "Cures burn"},
-            {"name": "Aspear Berry", "effect": "Cures freeze"}, {"name": "Persim Berry", "effect": "Cures confusion"}, {"name": "Leppa Berry", "effect": "Restores 10 PP to a move"},
-            {"name": "Figy Berry", "effect": "Restores 1/3 HP at 25% HP, confuses if dislikes spicy"}, {"name": "Wiki Berry", "effect": "Restores 1/3 HP at 25% HP, confuses if dislikes dry"},
-            {"name": "Mago Berry", "effect": "Restores 1/3 HP at 25% HP, confuses if dislikes sweet"}, {"name": "Aguav Berry", "effect": "Restores 1/3 HP at 25% HP, confuses if dislikes bitter"},
-            {"name": "Iapapa Berry", "effect": "Restores 1/3 HP at 25% HP, confuses if dislikes sour"},
-            // Stat Boost Berries
-            {"name": "Liechi Berry", "effect": "Boosts Attack at 25% HP"}, {"name": "Ganlon Berry", "effect": "Boosts Defense at 25% HP"},
-            {"name": "Salac Berry", "effect": "Boosts Speed at 25% HP"}, {"name": "Petaya Berry", "effect": "Boosts Special Attack at 25% HP"},
-            {"name": "Apicot Berry", "effect": "Boosts Special Defense at 25% HP"}, {"name": "Lansat Berry", "effect": "Boosts critical hit ratio at 25% HP"},
-            {"name": "Starf Berry", "effect": "Sharply boosts random stat at 25% HP"}, {"name": "Micle Berry", "effect": "Boosts accuracy at 25% HP"},
-            {"name": "Custap Berry", "effect": "Allows moving first at 25% HP"}, {"name": "Jaboca Berry", "effect": "Damages attacker when hit by physical move"},
-            {"name": "Rowap Berry", "effect": "Damages attacker when hit by special move"}
-        ];
-
-        // Complete Natures List
-        this.natures = [
-            "Hardy", "Lonely", "Brave", "Adamant", "Naughty",
-            "Bold", "Docile", "Relaxed", "Impish", "Lax", 
-            "Timid", "Hasty", "Serious", "Jolly", "Naive",
-            "Modest", "Mild", "Quiet", "Bashful", "Rash",
-            "Calm", "Gentle", "Sassy", "Careful", "Quirky"
-        ];
-
-        // Complete Move Database
-        this.moves = [
-            "Thunderbolt", "Thunder", "Thunder Wave", "Thunder Shock", "Quick Attack", "Iron Tail", "Agility", "Double Team", "Surf",
-            "Volt Tackle", "Electro Ball", "Nuzzle", "Discharge", "Wild Charge", "Spark", "Thunder Fang", "Charge Beam",
-            "Flamethrower", "Fire Blast", "Fire Punch", "Flame Wheel", "Ember", "Heat Wave", "Solar Beam", "Focus Blast",
-            "Air Slash", "Dragon Pulse", "Wing Attack", "Dragon Claw", "Roost", "Blast Burn", "Overheat", "Fire Spin",
-            "Water Gun", "Hydro Pump", "Surf", "Ice Beam", "Blizzard", "Water Pulse", "Aqua Tail", "Skull Bash",
-            "Rapid Spin", "Protect", "Withdraw", "Bite", "Bubble Beam", "Rain Dance", "Scald", "Waterfall",
-            "Vine Whip", "Razor Leaf", "Solar Beam", "Sleep Powder", "Poison Powder", "Stun Spore", "Synthesis",
-            "Seed Bomb", "Energy Ball", "Giga Drain", "Leaf Storm", "Petal Dance", "Magical Leaf", "Grass Knot",
-            "Tackle", "Scratch", "Pound", "Body Slam", "Take Down", "Double-Edge", "Hyper Beam", "Giga Impact",
-            "Return", "Frustration", "Facade", "Swift", "Headbutt", "Slam", "Mega Punch", "Seismic Toss",
-            "Psychic", "Psybeam", "Confusion", "Future Sight", "Extrasensory", "Psycho Cut", "Zen Headbutt",
-            "Calm Mind", "Recover", "Rest", "Dream Eater", "Hypnosis", "Teleport", "Light Screen", "Reflect",
-            "Rock Slide", "Stone Edge", "Rock Blast", "Ancient Power", "Rock Throw", "Rollout", "Sandstorm",
-            "Stealth Rock", "Rock Polish", "Head Smash", "Rock Tomb", "Power Gem", "Rock Wrecker",
-            // Add hundreds more moves...
-            "Swords Dance", "Dragon Dance", "Nasty Plot", "Quiver Dance", "Shell Smash", "Substitute", "Toxic",
-            "Will-O-Wisp", "Leech Seed", "Spikes", "Toxic Spikes", "Stealth Rock", "Defog", "Rapid Spin",
-            "U-turn", "Volt Switch", "Flip Turn", "Teleport", "Baton Pass", "Healing Wish", "Lunar Dance"
-        ];
-        
-        this.populateDropdowns();
+        // Initialize with some basic data to ensure functionality works immediately
+        this.initializeBasicData();
     }
 
-    populateDropdowns() {
-        // Populate Pokemon dropdown
-        const pokemonSelect = document.getElementById('pokemonSelect');
-        pokemonSelect.innerHTML = '<option value="">Select Pokemon...</option>';
-        Object.keys(this.pokemonData).forEach(key => {
-            const pokemon = this.pokemonData[key];
-            const option = document.createElement('option');
-            option.value = key;
-            option.textContent = pokemon.form ? `${pokemon.name} (${pokemon.form})` : pokemon.name;
-            pokemonSelect.appendChild(option);
-        });
+    initializeBasicData() {
+        // Add basic Pokemon data for immediate functionality
+        this.pokemonData = [
+            {name: 'bulbasaur', id: 1, types: ['grass', 'poison'], abilities: ['Overgrow', 'Chlorophyll']},
+            {name: 'charmander', id: 4, types: ['fire'], abilities: ['Blaze', 'Solar Power']},
+            {name: 'squirtle', id: 7, types: ['water'], abilities: ['Torrent', 'Rain Dish']},
+            {name: 'pikachu', id: 25, types: ['electric'], abilities: ['Static', 'Lightning Rod']},
+            {name: 'mewtwo', id: 150, types: ['psychic'], abilities: ['Pressure', 'Unnerve']},
+            {name: 'charizard', id: 6, types: ['fire', 'flying'], abilities: ['Blaze', 'Solar Power']},
+            {name: 'blastoise', id: 9, types: ['water'], abilities: ['Torrent', 'Rain Dish']},
+            {name: 'venusaur', id: 3, types: ['grass', 'poison'], abilities: ['Overgrow', 'Chlorophyll']}
+        ];
 
-        // Populate nature dropdown
-        const natureSelect = document.getElementById('nature');
-        this.natures.forEach(nature => {
-            const option = document.createElement('option');
-            option.value = nature;
-            option.textContent = nature;
-            natureSelect.appendChild(option);
-        });
+        this.itemsData = ['None', 'Leftovers', 'Life Orb', 'Focus Sash', 'Choice Band', 'Choice Specs', 'Choice Scarf', 'Assault Vest'];
+        this.movesData = ['Tackle', 'Thunderbolt', 'Surf', 'Earthquake', 'Psychic', 'Flamethrower', 'Ice Beam', 'Shadow Ball', 'Thunder Wave'];
+    }
 
-        // Populate ball dropdown
-        const ballSelect = document.getElementById('ball');
-        this.ballTypes.forEach(ball => {
-            const option = document.createElement('option');
-            option.value = ball.name;
-            option.textContent = ball.name;
-            ballSelect.appendChild(option);
-        });
+    async init() {
+        console.log('Initializing Pokemon Generator...');
+        this.showLoading(true);
+        
+        try {
+            // Populate static dropdowns
+            this.populateStaticDropdowns();
+            
+            // Set default values
+            this.setDefaults();
+            
+            // Setup all event listeners
+            this.setupEventListeners();
+            
+            // Load extended data from API in background
+            this.loadCompleteData();
+            
+            console.log('Pokemon Generator initialized successfully');
+        } catch (error) {
+            console.error('Initialization error:', error);
+            this.showError('Failed to initialize: ' + error.message);
+        } finally {
+            this.showLoading(false);
+        }
+    }
 
-        // Populate held item dropdown
-        const itemSelect = document.getElementById('heldItem');
-        this.heldItems.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.name;
-            option.textContent = item.name;
-            itemSelect.appendChild(option);
-        });
+    async loadCompleteData() {
+        console.log('Loading complete Pokemon, Items, and Moves data from PokéAPI...');
+        
+        try {
+            // Load Pokemon species (complete list)
+            console.log('Fetching Pokemon species...');
+            const speciesResponse = await fetch('https://pokeapi.co/api/v2/pokemon-species?limit=1000');
+            const speciesData = await speciesResponse.json();
+            
+            const extendedPokemonData = speciesData.results.map((pokemon, index) => ({
+                name: pokemon.name,
+                id: index + 1,
+                types: ['normal'], // Will be updated when selected
+                abilities: ['Unknown'] // Will be updated when selected
+            }));
+            
+            // Merge with existing basic data, prioritizing basic data for duplicates
+            const basicNames = this.pokemonData.map(p => p.name);
+            const newPokemon = extendedPokemonData.filter(p => !basicNames.includes(p.name));
+            this.pokemonData = [...this.pokemonData, ...newPokemon];
+            
+            console.log(`Loaded ${this.pokemonData.length} Pokemon species`);
+            
+            // Load Items (complete list)
+            console.log('Fetching items...');
+            const itemsResponse = await fetch('https://pokeapi.co/api/v2/item?limit=1000');
+            const itemsData = await itemsResponse.json();
+            
+            const extendedItemsData = itemsData.results.map(item => 
+                this.formatName(item.name)
+            );
+            
+            // Merge with existing items
+            const basicItems = this.itemsData;
+            const newItems = extendedItemsData.filter(item => !basicItems.includes(item));
+            this.itemsData = [...basicItems, ...newItems];
+            
+            console.log(`Loaded ${this.itemsData.length} items`);
+            
+            // Load Moves (complete list)
+            console.log('Fetching moves...');
+            const movesResponse = await fetch('https://pokeapi.co/api/v2/move?limit=800');
+            const movesData = await movesResponse.json();
+            
+            const extendedMovesData = movesData.results.map(move => 
+                this.formatName(move.name)
+            );
+            
+            // Merge with existing moves
+            const basicMoves = this.movesData;
+            const newMoves = extendedMovesData.filter(move => !basicMoves.includes(move));
+            this.movesData = [...basicMoves, ...newMoves];
+            
+            console.log(`Loaded ${this.movesData.length} moves`);
+            
+        } catch (error) {
+            console.error('Error loading complete data:', error);
+            // Continue with basic data - don't show error as basic functionality works
+        }
     }
 
     setupEventListeners() {
-        // Pokemon selection change - Fixed event listener
-        const pokemonSelect = document.getElementById('pokemonSelect');
-        if (pokemonSelect) {
-            pokemonSelect.addEventListener('change', (e) => {
-                this.onPokemonChange(e.target.value);
+        console.log('Setting up event listeners...');
+
+        // Species autocomplete
+        this.setupAutocomplete('speciesInput', 'speciesDropdown', (query) => {
+            return this.pokemonData.filter(pokemon => 
+                pokemon.name.toLowerCase().includes(query.toLowerCase())
+            ).slice(0, 15);
+        }, (pokemon) => {
+            this.selectPokemon(pokemon);
+        });
+
+        // Item autocomplete
+        this.setupAutocomplete('itemInput', 'itemDropdown', (query) => {
+            return this.itemsData.filter(item => 
+                item.toLowerCase().includes(query.toLowerCase())
+            ).slice(0, 15).map(item => ({name: item}));
+        }, (item) => {
+            const itemInput = document.getElementById('itemInput');
+            if (itemInput) {
+                itemInput.value = item.name;
+            }
+            this.hideDropdown(document.getElementById('itemDropdown'));
+            this.validateForm();
+        });
+
+        // Move autocompletes - CRITICAL: These need highest z-index
+        for (let i = 0; i < 4; i++) {
+            this.setupMoveAutocomplete(i);
+        }
+
+        // Regular select dropdowns
+        this.setupSelectDropdowns();
+
+        // Nickname input validation
+        const nicknameInput = document.getElementById('nicknameInput');
+        if (nicknameInput) {
+            nicknameInput.addEventListener('input', () => this.validateForm());
+            nicknameInput.addEventListener('change', () => this.validateForm());
+        }
+
+        // Shiny toggle event listener
+        const shinyToggle = document.getElementById('shinyToggle');
+        if (shinyToggle) {
+            shinyToggle.addEventListener('change', (e) => {
+                console.log('Shiny toggle changed:', e.target.checked);
+                this.updatePokemonSprite(e.target.checked);
             });
         }
 
-        // Form field changes
-        ['nickname', 'level', 'ability', 'nature', 'gender', 'shiny', 'ball', 'heldItem', 'teraType'].forEach(field => {
-            const element = document.getElementById(field);
-            if (element) {
-                element.addEventListener('change', () => this.updateOutput());
+        // Form validation triggers
+        this.setupFormValidation();
+
+        // IV/EV input handlers
+        this.setupIVEVInputs();
+
+        // Generate button
+        const generateBtn = document.getElementById('generateButton');
+        if (generateBtn) {
+            generateBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('Generate button clicked');
+                this.generatePokemon();
+            });
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchTab(btn.dataset.tab);
+            });
+        });
+
+        // Copy buttons
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.copyToClipboard(btn.dataset.target);
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.autocomplete-wrapper')) {
+                this.hideAllDropdowns();
             }
         });
 
-        // Move changes
-        ['move1', 'move2', 'move3', 'move4'].forEach(field => {
-            const element = document.getElementById(field);
-            if (element) {
-                element.addEventListener('change', () => this.updateOutput());
-            }
-        });
+        console.log('All event listeners set up successfully');
+    }
 
-        // Stat changes
-        ['ivHp', 'ivAtk', 'ivDef', 'ivSpA', 'ivSpD', 'ivSpe'].forEach(field => {
-            const element = document.getElementById(field);
-            if (element) {
-                element.addEventListener('change', () => this.updateOutput());
-            }
-        });
+    setupAutocomplete(inputId, dropdownId, filterFn, selectFn) {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+        
+        if (!input || !dropdown) {
+            console.error(`Autocomplete setup failed for ${inputId}/${dropdownId}`);
+            return;
+        }
 
-        ['evHp', 'evAtk', 'evDef', 'evSpA', 'evSpD', 'evSpe'].forEach(field => {
-            const element = document.getElementById(field);
+        console.log(`Setting up autocomplete for ${inputId}`);
+
+        const inputHandler = (e) => {
+            const query = e.target.value.trim();
+            console.log(`Input event on ${inputId}:`, query);
+            if (query.length < 1) {
+                this.hideDropdown(dropdown);
+                return;
+            }
+
+            const results = filterFn(query);
+            console.log(`Found ${results.length} results for "${query}"`);
+            this.showDropdownResults(dropdown, results, selectFn);
+        };
+
+        const focusHandler = (e) => {
+            const query = e.target.value.trim();
+            if (query.length > 0) {
+                const results = filterFn(query);
+                this.showDropdownResults(dropdown, results, selectFn);
+            }
+        };
+
+        const keydownHandler = (e) => {
+            this.handleDropdownKeyboard(e, dropdown);
+        };
+
+        input.addEventListener('input', inputHandler);
+        input.addEventListener('focus', focusHandler);
+        input.addEventListener('keydown', keydownHandler);
+
+        console.log(`Autocomplete setup complete for ${inputId}`);
+    }
+
+    setupMoveAutocomplete(moveIndex) {
+        const moveInput = document.querySelector(`[data-move="${moveIndex}"].move-input`);
+        const moveDropdown = document.querySelector(`[data-move="${moveIndex}"].move-dropdown`);
+        
+        if (!moveInput || !moveDropdown) {
+            console.error(`Move autocomplete setup failed for move ${moveIndex}`);
+            return;
+        }
+
+        console.log(`Setting up move autocomplete for move ${moveIndex}`);
+
+        const filterFn = (query) => {
+            return this.movesData.filter(move => 
+                move.toLowerCase().includes(query.toLowerCase())
+            ).slice(0, 15).map(move => ({name: move}));
+        };
+
+        const selectFn = (move) => {
+            moveInput.value = move.name;
+            this.selectedMoves[moveIndex] = move.name;
+            this.hideDropdown(moveDropdown);
+            this.validateForm();
+        };
+
+        const inputHandler = (e) => {
+            const query = e.target.value.trim();
+            this.selectedMoves[moveIndex] = query; // Update selected moves immediately
+            console.log(`Move input event on move ${moveIndex}:`, query);
+            if (query.length < 1) {
+                this.hideDropdown(moveDropdown);
+                this.validateForm();
+                return;
+            }
+            const results = filterFn(query);
+            console.log(`Found ${results.length} move results for "${query}"`);
+            this.showDropdownResults(moveDropdown, results, selectFn);
+            this.validateForm();
+        };
+
+        const focusHandler = (e) => {
+            const query = e.target.value.trim();
+            if (query.length > 0) {
+                const results = filterFn(query);
+                this.showDropdownResults(moveDropdown, results, selectFn);
+            }
+        };
+
+        const keydownHandler = (e) => {
+            this.handleDropdownKeyboard(e, moveDropdown);
+        };
+
+        // Add click handler to prevent event bubbling
+        const clickHandler = (e) => {
+            e.stopPropagation();
+            moveInput.focus();
+        };
+
+        moveInput.addEventListener('input', inputHandler);
+        moveInput.addEventListener('focus', focusHandler);
+        moveInput.addEventListener('keydown', keydownHandler);
+        moveInput.addEventListener('click', clickHandler);
+
+        console.log(`Move autocomplete setup complete for move ${moveIndex}`);
+    }
+
+    setupSelectDropdowns() {
+        const selects = [
+            {id: 'abilitySelect', callback: null},
+            {id: 'natureSelect', callback: (value) => this.updateNatureEffect(value)},
+            {id: 'ballSelect', callback: null},
+            {id: 'otGenderSelect', callback: null}
+        ];
+
+        selects.forEach(select => {
+            const element = document.getElementById(select.id);
             if (element) {
-                element.addEventListener('change', () => {
-                    this.updateEVTotal();
-                    this.updateOutput();
+                element.addEventListener('change', (e) => {
+                    console.log(`${select.id} changed to:`, e.target.value);
+                    if (select.callback) {
+                        select.callback(e.target.value);
+                    }
+                    this.validateForm();
                 });
             }
         });
-
-        // Profile management
-        const profileSelect = document.getElementById('profileSelect');
-        if (profileSelect) {
-            profileSelect.addEventListener('change', (e) => {
-                this.loadProfile(e.target.value);
-            });
-        }
-
-        const saveProfileBtn = document.getElementById('saveProfile');
-        if (saveProfileBtn) {
-            saveProfileBtn.addEventListener('click', () => this.saveCurrentProfile());
-        }
-
-        const deleteProfileBtn = document.getElementById('deleteProfile');
-        if (deleteProfileBtn) {
-            deleteProfileBtn.addEventListener('click', () => this.deleteCurrentProfile());
-        }
-
-        const newProfileBtn = document.getElementById('newProfile');
-        if (newProfileBtn) {
-            newProfileBtn.addEventListener('click', () => this.createNewProfile());
-        }
-
-        // Output actions
-        const copyOutputBtn = document.getElementById('copyOutput');
-        if (copyOutputBtn) {
-            copyOutputBtn.addEventListener('click', () => this.copyToClipboard());
-        }
-
-        const clearFormBtn = document.getElementById('clearForm');
-        if (clearFormBtn) {
-            clearFormBtn.addEventListener('click', () => this.clearForm());
-        }
     }
 
-    onPokemonChange(pokemonKey) {
-        if (!pokemonKey) {
-            this.clearSpeciesData();
+    setupFormValidation() {
+        const formInputs = document.querySelectorAll('.form-control:not(.iv-input):not(.ev-input)');
+        formInputs.forEach(input => {
+            input.addEventListener('input', () => this.validateForm());
+            input.addEventListener('change', () => this.validateForm());
+        });
+    }
+
+    setupIVEVInputs() {
+        // IV inputs
+        const ivInputs = document.querySelectorAll('.iv-input');
+        ivInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                let value = parseInt(e.target.value);
+                if (isNaN(value) || value < 0) value = 0;
+                if (value > 31) value = 31;
+                e.target.value = value;
+                this.updateStatsDisplay();
+                this.validateForm();
+            });
+
+            input.addEventListener('change', (e) => {
+                let value = parseInt(e.target.value);
+                if (isNaN(value) || value < 0) value = 0;
+                if (value > 31) value = 31;
+                e.target.value = value;
+                this.updateStatsDisplay();
+                this.validateForm();
+            });
+        });
+
+        // EV inputs
+        const evInputs = document.querySelectorAll('.ev-input');
+        evInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                let value = parseInt(e.target.value);
+                if (isNaN(value) || value < 0) value = 0;
+                if (value > 252) value = 252;
+                e.target.value = value;
+                this.validateEvs();
+                this.updateStatsDisplay();
+                this.validateForm();
+            });
+
+            input.addEventListener('change', (e) => {
+                let value = parseInt(e.target.value);
+                if (isNaN(value) || value < 0) value = 0;
+                if (value > 252) value = 252;
+                e.target.value = value;
+                this.validateEvs();
+                this.updateStatsDisplay();
+                this.validateForm();
+            });
+        });
+    }
+
+    showDropdownResults(dropdown, results, onSelect) {
+        if (!dropdown) {
+            console.error('No dropdown element provided');
+            return;
+        }
+        
+        dropdown.innerHTML = '';
+        
+        if (results.length === 0) {
+            this.hideDropdown(dropdown);
             return;
         }
 
-        const pokemon = this.pokemonData[pokemonKey];
-        if (!pokemon) return;
+        console.log(`Showing ${results.length} dropdown results`);
 
-        // Update abilities
-        this.updateAbilities(pokemon);
-        
-        // Update moves
-        this.updateMoves(pokemon);
-        
-        // Update gender options
-        this.updateGenderOptions(pokemon);
-        
-        // Update validation and output
-        this.validateForm();
-        this.updateOutput();
-    }
-
-    updateAbilities(pokemon) {
-        const abilitySelect = document.getElementById('ability');
-        if (!abilitySelect) return;
-        
-        abilitySelect.innerHTML = '<option value="">Select Ability...</option>';
-        
-        pokemon.abilities.forEach(ability => {
-            const option = document.createElement('option');
-            option.value = ability;
-            option.textContent = ability;
-            abilitySelect.appendChild(option);
+        results.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'dropdown-item';
+            div.textContent = this.formatName(item.name);
+            
+            div.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Dropdown item clicked:', item.name);
+                onSelect(item);
+            });
+            
+            div.addEventListener('mouseenter', () => {
+                dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('highlighted'));
+                div.classList.add('highlighted');
+            });
+            
+            dropdown.appendChild(div);
         });
 
-        if (pokemon.hiddenAbility) {
-            const option = document.createElement('option');
-            option.value = pokemon.hiddenAbility;
-            option.textContent = `${pokemon.hiddenAbility} (Hidden Ability)`;
-            abilitySelect.appendChild(option);
+        dropdown.classList.add('show');
+        console.log(`Dropdown shown with ${results.length} items`);
+    }
+
+    hideDropdown(dropdown) {
+        if (dropdown) {
+            dropdown.classList.remove('show');
         }
     }
 
-    updateMoves(pokemon) {
-        const moveSelects = ['move1', 'move2', 'move3', 'move4'];
-        
-        moveSelects.forEach(selectId => {
-            const select = document.getElementById(selectId);
-            if (!select) return;
-            
-            select.innerHTML = '<option value="">Select Move...</option>';
-            
-            // Add species-specific moves
-            pokemon.moves.forEach(move => {
-                const option = document.createElement('option');
-                option.value = move;
-                option.textContent = move;
-                select.appendChild(option);
-            });
+    hideAllDropdowns() {
+        const dropdowns = document.querySelectorAll('.dropdown-list');
+        dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show');
         });
     }
 
-    updateGenderOptions(pokemon) {
-        const genderSelect = document.getElementById('gender');
-        if (!genderSelect) return;
-        
-        const currentValue = genderSelect.value;
-        
-        // Reset options
-        genderSelect.innerHTML = '<option value="">Auto</option>';
-        
-        if (pokemon.genderRatio === null) {
-            // Genderless
-            const option = document.createElement('option');
-            option.value = 'N';
-            option.textContent = 'Genderless';
-            genderSelect.appendChild(option);
-        } else if (pokemon.genderRatio === 1.0) {
-            // Male only
-            const option = document.createElement('option');
-            option.value = 'M';
-            option.textContent = 'Male';
-            genderSelect.appendChild(option);
-        } else if (pokemon.genderRatio === 0.0) {
-            // Female only
-            const option = document.createElement('option');
-            option.value = 'F';
-            option.textContent = 'Female';
-            genderSelect.appendChild(option);
-        } else {
-            // Both genders possible
-            ['M', 'F'].forEach(gender => {
-                const option = document.createElement('option');
-                option.value = gender;
-                option.textContent = gender === 'M' ? 'Male' : 'Female';
-                genderSelect.appendChild(option);
-            });
-        }
-        
-        // Restore value if still valid
-        if (Array.from(genderSelect.options).some(opt => opt.value === currentValue)) {
-            genderSelect.value = currentValue;
+    handleDropdownKeyboard(e, dropdown) {
+        if (!dropdown || !dropdown.classList.contains('show')) return;
+
+        const items = dropdown.querySelectorAll('.dropdown-item');
+        const highlighted = dropdown.querySelector('.dropdown-item.highlighted');
+        let currentIndex = highlighted ? Array.from(items).indexOf(highlighted) : -1;
+
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                currentIndex = Math.min(currentIndex + 1, items.length - 1);
+                this.highlightDropdownItem(items, currentIndex);
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                currentIndex = Math.max(currentIndex - 1, 0);
+                this.highlightDropdownItem(items, currentIndex);
+                break;
+            case 'Enter':
+                e.preventDefault();
+                if (highlighted) {
+                    highlighted.click();
+                }
+                break;
+            case 'Escape':
+                e.preventDefault();
+                this.hideDropdown(dropdown);
+                break;
         }
     }
 
-    clearSpeciesData() {
-        // Clear abilities
-        const abilitySelect = document.getElementById('ability');
+    highlightDropdownItem(items, index) {
+        items.forEach((item, i) => {
+            item.classList.toggle('highlighted', i === index);
+        });
+    }
+
+    // Update Pokemon sprite based on shiny status
+    updatePokemonSprite(isShiny = null) {
+        if (!this.currentPokemon) return;
+        
+        const sprite = document.getElementById('pokemonSprite');
+        if (!sprite) return;
+
+        // If isShiny is not provided, check the checkbox state
+        if (isShiny === null) {
+            const shinyToggle = document.getElementById('shinyToggle');
+            isShiny = shinyToggle ? shinyToggle.checked : false;
+        }
+
+        // Set the appropriate sprite URL
+        const spriteUrl = isShiny 
+            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${this.currentPokemon.id}.png`
+            : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${this.currentPokemon.id}.png`;
+        
+        console.log(`Updating sprite to ${isShiny ? 'shiny' : 'normal'} version:`, spriteUrl);
+        
+        sprite.src = spriteUrl;
+        sprite.onerror = () => {
+            // Fallback to placeholder if sprite fails to load
+            sprite.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBmaWxsPSIjRjVGNUY1Ii8+CjxjaXJjbGUgY3g9IjQ4IiBjeT0iNDgiIHI9IjI0IiBmaWxsPSIjQ0NDIi8+CjwvZXZnPgo=';
+        };
+    }
+
+    async selectPokemon(pokemon) {
+        console.log('Selecting Pokemon:', pokemon.name);
+        this.currentPokemon = pokemon;
+        
+        // Update species input and hide dropdown
+        const speciesInput = document.getElementById('speciesInput');
+        const speciesDropdown = document.getElementById('speciesDropdown');
+        
+        if (speciesInput) {
+            speciesInput.value = this.formatName(pokemon.name);
+        }
+        
+        if (speciesDropdown) {
+            this.hideDropdown(speciesDropdown);
+        }
+
+        // Show preview immediately with basic data
+        const preview = document.getElementById('pokemonPreview');
+        if (preview) {
+            preview.style.display = 'flex';
+            console.log('Pokemon preview shown');
+        }
+
+        // Update sprite with fallback
+        this.updatePokemonSprite();
+
+        // Update types with basic data first
+        const typesEl = document.getElementById('pokemonTypes');
+        if (typesEl) {
+            typesEl.innerHTML = '';
+            this.currentPokemon.types.forEach(type => {
+                const span = document.createElement('span');
+                span.className = `type-badge type-${type}`;
+                span.textContent = this.formatName(type);
+                typesEl.appendChild(span);
+            });
+        }
+
+        // Update abilities with basic data first
+        const abilitySelect = document.getElementById('abilitySelect');
         if (abilitySelect) {
-            abilitySelect.innerHTML = '<option value="">Select Pokemon first</option>';
-        }
-        
-        // Clear moves
-        ['move1', 'move2', 'move3', 'move4'].forEach(selectId => {
-            const select = document.getElementById(selectId);
-            if (select) {
-                select.innerHTML = '<option value="">Select Pokemon first</option>';
+            abilitySelect.innerHTML = '<option value="">Select ability...</option>';
+            this.currentPokemon.abilities.forEach(ability => {
+                const option = document.createElement('option');
+                option.value = this.formatName(ability);
+                option.textContent = this.formatName(ability);
+                abilitySelect.appendChild(option);
+            });
+            // Select first ability by default
+            if (abilitySelect.options.length > 1) {
+                abilitySelect.selectedIndex = 1;
             }
+        }
+
+        // Load detailed Pokemon data from API if available
+        try {
+            console.log('Loading detailed Pokemon data...');
+            const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon.name}`);
+            const pokemonData = await pokemonResponse.json();
+            
+            // Update sprite with API data
+            this.updatePokemonSprite();
+            
+            // Update types with API data
+            this.currentPokemon.types = pokemonData.types.map(t => t.type.name);
+            if (typesEl) {
+                typesEl.innerHTML = '';
+                this.currentPokemon.types.forEach(type => {
+                    const span = document.createElement('span');
+                    span.className = `type-badge type-${type}`;
+                    span.textContent = this.formatName(type);
+                    typesEl.appendChild(span);
+                });
+            }
+
+            // Update abilities with API data
+            this.currentPokemon.abilities = pokemonData.abilities.map(a => this.formatName(a.ability.name));
+            if (abilitySelect) {
+                const currentValue = abilitySelect.value;
+                abilitySelect.innerHTML = '<option value="">Select ability...</option>';
+                this.currentPokemon.abilities.forEach(ability => {
+                    const option = document.createElement('option');
+                    option.value = ability;
+                    option.textContent = ability;
+                    abilitySelect.appendChild(option);
+                });
+                // Restore previous selection or select first ability
+                if (currentValue && this.currentPokemon.abilities.includes(currentValue)) {
+                    abilitySelect.value = currentValue;
+                } else if (abilitySelect.options.length > 1) {
+                    abilitySelect.selectedIndex = 1;
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error loading Pokemon details:', error);
+            // Continue with basic data - already set above
+        }
+
+        // Clear moves
+        document.querySelectorAll('.move-input').forEach((input, index) => {
+            input.value = '';
+            this.selectedMoves[index] = '';
         });
-        
-        // Reset gender options
-        const genderSelect = document.getElementById('gender');
-        if (genderSelect) {
-            genderSelect.innerHTML = `
-                <option value="">Auto</option>
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-                <option value="N">Genderless</option>
-            `;
+
+        this.validateForm();
+    }
+
+    populateStaticDropdowns() {
+        // Nature dropdown
+        const natureSelect = document.getElementById('natureSelect');
+        if (natureSelect) {
+            natureSelect.innerHTML = '<option value="">Select nature...</option>';
+            this.natures.forEach(nature => {
+                const option = document.createElement('option');
+                option.value = nature;
+                option.textContent = nature;
+                natureSelect.appendChild(option);
+            });
+        }
+
+        // Ball dropdown
+        const ballSelect = document.getElementById('ballSelect');
+        if (ballSelect) {
+            ballSelect.innerHTML = '<option value="">Select ball...</option>';
+            this.balls.forEach(ball => {
+                const option = document.createElement('option');
+                option.value = ball;
+                option.textContent = ball;
+                ballSelect.appendChild(option);
+            });
         }
     }
 
-    updateEVTotal() {
-        const evInputs = ['evHp', 'evAtk', 'evDef', 'evSpA', 'evSpD', 'evSpe'];
-        let total = 0;
+    setDefaults() {
+        // Set default values
+        const elements = {
+            natureSelect: 'Hardy',
+            ballSelect: 'Poke Ball',
+            levelInput: '100',
+            otInput: 'Ash',
+            tidInput: '12345',
+            sidInput: '54321',
+            itemInput: 'None',
+            otGenderSelect: 'Male'
+        };
         
-        evInputs.forEach(inputId => {
-            const element = document.getElementById(inputId);
-            if (element) {
-                const value = parseInt(element.value) || 0;
-                total += value;
-            }
+        Object.entries(elements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) element.value = value;
         });
         
-        const totalElement = document.getElementById('evTotal');
-        if (totalElement) {
-            totalElement.textContent = total;
-            const container = totalElement.parentElement;
-            if (container) {
-                container.classList.toggle('invalid', total > 510);
+        // Set default IVs to 31
+        document.querySelectorAll('.iv-input').forEach(input => {
+            input.value = '31';
+        });
+        
+        // Set default EVs to 0
+        document.querySelectorAll('.ev-input').forEach(input => {
+            input.value = '0';
+        });
+
+        this.updateNatureEffect('Hardy');
+        this.updateStatsDisplay();
+        this.validateForm();
+    }
+
+    updateNatureEffect(nature) {
+        const effectEl = document.getElementById('natureEffect');
+        if (!effectEl || !nature) return;
+
+        const effect = this.natureEffects[nature];
+        if (!effect || (!effect.boost && !effect.drop)) {
+            effectEl.innerHTML = '<span class="nature-neutral">No stat changes</span>';
+        } else {
+            effectEl.innerHTML = `<span class="nature-boost">+${effect.boost}</span>, <span class="nature-drop">-${effect.drop}</span>`;
+        }
+    }
+
+    updateStatsDisplay() {
+        // Update IV display
+        const ivInputs = Array.from(document.querySelectorAll('.iv-input'));
+        const ivValues = ivInputs.map(input => parseInt(input.value) || 31);
+        const ivDisplay = document.getElementById('ivDisplay');
+        if (ivDisplay) {
+            ivDisplay.textContent = `${ivValues[0]} HP / ${ivValues[1]} Atk / ${ivValues[2]} Def / ${ivValues[3]} SpA / ${ivValues[4]} SpD / ${ivValues[5]} Spe`;
+        }
+
+        // Update EV display
+        const evInputs = Array.from(document.querySelectorAll('.ev-input'));
+        const evValues = evInputs.map(input => parseInt(input.value) || 0);
+        const evDisplay = document.getElementById('evDisplay');
+        if (evDisplay) {
+            evDisplay.textContent = `${evValues[0]} HP / ${evValues[1]} Atk / ${evValues[2]} Def / ${evValues[3]} SpA / ${evValues[4]} SpD / ${evValues[5]} Spe`;
+        }
+    }
+
+    validateEvs() {
+        const evInputs = document.querySelectorAll('.ev-input');
+        let total = 0;
+
+        evInputs.forEach(input => {
+            let value = parseInt(input.value) || 0;
+            if (value > 252) {
+                value = 252;
+                input.value = value;
+            }
+            if (value < 0) {
+                value = 0;
+                input.value = value;
+            }
+            total += value;
+        });
+
+        const totalEl = document.getElementById('evTotal');
+        if (totalEl) totalEl.textContent = total;
+
+        const error = document.getElementById('evError');
+        if (error) {
+            if (total > 510) {
+                error.style.display = 'block';
+                error.textContent = 'EV total exceeds 510!';
+                return false;
+            } else {
+                error.style.display = 'none';
+                return true;
             }
         }
+        return true;
     }
 
     validateForm() {
-        const pokemonSelect = document.getElementById('pokemonSelect');
-        const pokemonKey = pokemonSelect ? pokemonSelect.value : '';
-        const pokemon = pokemonKey ? this.pokemonData[pokemonKey] : null;
-        
-        if (!pokemon) {
-            this.setValidationStatus('Select a Pokemon to begin', 'info');
-            return false;
+        const errors = [];
+
+        // Check Pokemon selection
+        if (!this.currentPokemon) {
+            errors.push('Select a Pokémon species');
         }
-        
-        let isValid = true;
-        let warnings = [];
-        
-        // Validate ability
-        const abilitySelect = document.getElementById('ability');
-        const ability = abilitySelect ? abilitySelect.value : '';
-        if (ability && pokemon) {
-            const validAbilities = [...pokemon.abilities];
-            if (pokemon.hiddenAbility) validAbilities.push(pokemon.hiddenAbility);
-            
-            if (!validAbilities.includes(ability)) {
-                warnings.push('Invalid ability for this Pokemon');
-                isValid = false;
+
+        // Check required fields with proper value checking
+        const abilitySelect = document.getElementById('abilitySelect');
+        if (!abilitySelect || !abilitySelect.value) {
+            errors.push('Select ability');
+        }
+
+        const natureSelect = document.getElementById('natureSelect');
+        if (!natureSelect || !natureSelect.value) {
+            errors.push('Select nature');
+        }
+
+        const ballSelect = document.getElementById('ballSelect');
+        if (!ballSelect || !ballSelect.value) {
+            errors.push('Select Poké Ball');
+        }
+
+        // Check moves - count filled moves
+        const filledMoves = this.selectedMoves.filter(move => move && move.trim()).length;
+        if (filledMoves === 0) {
+            errors.push('Select at least 1 move');
+        }
+
+        // Check EV total
+        if (!this.validateEvs()) {
+            errors.push('EV total exceeds 510');
+        }
+
+        // Check level
+        const levelInput = document.getElementById('levelInput');
+        if (levelInput) {
+            const level = parseInt(levelInput.value);
+            if (isNaN(level) || level < 1 || level > 100) {
+                errors.push('Level must be 1-100');
             }
         }
-        
-        // Validate moves
-        const moves = ['move1', 'move2', 'move3', 'move4'].map(id => {
-            const element = document.getElementById(id);
-            return element ? element.value : '';
-        }).filter(Boolean);
-        
-        if (pokemon) {
-            moves.forEach(move => {
-                if (!pokemon.moves.includes(move)) {
-                    warnings.push(`${move} cannot be learned by this Pokemon`);
-                    isValid = false;
-                }
-            });
+
+        // Display errors
+        const errorDiv = document.getElementById('validationErrors');
+        if (errorDiv) {
+            errorDiv.innerHTML = errors.map(e => `<div class="error-message">${e}</div>`).join('');
         }
-        
-        // Validate EVs
-        const evTotalElement = document.getElementById('evTotal');
-        const evTotal = evTotalElement ? parseInt(evTotalElement.textContent) : 0;
-        if (evTotal > 510) {
-            warnings.push('EV total exceeds 510');
-            isValid = false;
+
+        // Enable/disable generate button
+        const generateBtn = document.getElementById('generateButton');
+        if (generateBtn) {
+            generateBtn.disabled = errors.length > 0;
         }
-        
-        // Set validation status
-        if (isValid) {
-            this.setValidationStatus('Pokemon build is legal', 'success');
-        } else {
-            this.setValidationStatus(warnings.join(', '), 'error');
-        }
-        
-        return isValid;
+
+        console.log('Validation result:', {
+            errors: errors,
+            currentPokemon: this.currentPokemon,
+            selectedMoves: this.selectedMoves,
+            filledMoves: filledMoves
+        });
+
+        return errors.length === 0;
     }
 
-    setValidationStatus(message, type) {
-        const statusElement = document.getElementById('validationStatus');
-        if (statusElement) {
-            statusElement.innerHTML = `<span class="status status--${type}">${message}</span>`;
+    generatePokemon() {
+        if (!this.validateForm()) return;
+
+        const data = this.collectFormData();
+
+        // Generate exports
+        const showdownOutput = document.getElementById('showdownOutput');
+        if (showdownOutput) {
+            showdownOutput.value = this.generateShowdownFormat(data);
+        }
+
+        const discordOutput = document.getElementById('discordOutput');
+        if (discordOutput) {
+            discordOutput.value = this.generateDiscordFormat(data);
+        }
+
+        // Show export section
+        const exportSection = document.getElementById('exportSection');
+        if (exportSection) {
+            exportSection.style.display = 'block';
+            this.switchTab('discord');
+            exportSection.scrollIntoView({ behavior: 'smooth' });
         }
     }
 
-    updateOutput() {
-        const pokemonSelect = document.getElementById('pokemonSelect');
-        const pokemonKey = pokemonSelect ? pokemonSelect.value : '';
-        if (!pokemonKey) {
-            const outputText = document.getElementById('outputText');
-            if (outputText) {
-                outputText.value = '';
-            }
-            return;
-        }
-        
-        const pokemon = this.pokemonData[pokemonKey];
-        const nickname = this.getElementValue('nickname') || pokemon.name;
-        const level = this.getElementValue('level') || '50';
-        const ability = this.getElementValue('ability');
-        const nature = this.getElementValue('nature');
-        const shiny = this.getElementValue('shiny') === 'Yes' ? 'Yes' : 'No';
-        const ball = this.getElementValue('ball') || 'Poke Ball';
-        const heldItem = this.getElementValue('heldItem');
-        const teraType = this.getElementValue('teraType');
-        
-        // Get moves
-        const moves = ['move1', 'move2', 'move3', 'move4']
-            .map(id => this.getElementValue(id))
-            .filter(Boolean);
-        
-        // Get IVs
-        const ivs = ['ivHp', 'ivAtk', 'ivDef', 'ivSpA', 'ivSpD', 'ivSpe']
-            .map(id => this.getElementValue(id) || '31');
-        
-        // Get EVs
-        const evs = ['evHp', 'evAtk', 'evDef', 'evSpA', 'evSpD', 'evSpe']
-            .map(id => this.getElementValue(id) || '0');
-        
-        // Generate output
+    collectFormData() {
+        const moves = this.selectedMoves.filter(move => move && move.trim());
+
+        const ivInputs = Array.from(document.querySelectorAll('.iv-input'));
+        const ivs = ivInputs.map(input => parseInt(input.value) || 31);
+
+        const evInputs = Array.from(document.querySelectorAll('.ev-input'));
+        const evs = evInputs.map(input => parseInt(input.value) || 0);
+
+        return {
+            species: this.formatName(this.currentPokemon.name),
+            nickname: document.getElementById('nicknameInput').value.trim() || this.formatName(this.currentPokemon.name),
+            level: parseInt(document.getElementById('levelInput').value) || 100,
+            shiny: document.getElementById('shinyToggle').checked || false,
+            ability: document.getElementById('abilitySelect').value || '',
+            nature: document.getElementById('natureSelect').value || '',
+            item: document.getElementById('itemInput').value.trim() || 'None',
+            ball: document.getElementById('ballSelect').value || 'Poke Ball',
+            moves: moves,
+            ivs: { hp: ivs[0], atk: ivs[1], def: ivs[2], spa: ivs[3], spd: ivs[4], spe: ivs[5] },
+            evs: { hp: evs[0], atk: evs[1], def: evs[2], spa: evs[3], spd: evs[4], spe: evs[5] },
+            ot: document.getElementById('otInput').value || 'Trainer',
+            tid: String(document.getElementById('tidInput').value || '12345').padStart(5, '0'),
+            sid: String(document.getElementById('sidInput').value || '54321').padStart(5, '0'),
+            otGender: document.getElementById('otGenderSelect').value || 'Male'
+        };
+    }
+
+    // UPDATED: Discord format with EXACT format requested by user
+    generateDiscordFormat(data) {
         let output = '';
         
-        // Pokemon line
-        if (heldItem && heldItem !== 'None') {
-            output += `${nickname} (${pokemon.name}) @ ${heldItem}\n`;
-        } else {
-            output += `${nickname} (${pokemon.name})\n`;
+        // First line: [nickname] (species) @ item
+        output += `[${data.nickname}] (${data.species}) @ ${data.item}\n`;
+        
+        // Required order as specified
+        output += `OT: ${data.ot}\n`;
+        output += `TID: ${data.tid}\n`;
+        output += `SID: ${data.sid}\n`;
+        output += `OTGender: ${data.otGender}\n`;
+        output += `Language: English\n`;
+        output += `Ability: ${data.ability}\n`;
+        output += `Shiny: ${data.shiny ? 'Yes' : 'No'}\n`;
+        output += `Ball: ${data.ball}\n`;
+        
+        // EVs format: "252 HP / 4 Atk / 0 Def / 252 SpA / 0 SpD / 0 Spe"
+        output += `EVs: ${data.evs.hp} HP / ${data.evs.atk} Atk / ${data.evs.def} Def / ${data.evs.spa} SpA / ${data.evs.spd} SpD / ${data.evs.spe} Spe\n`;
+        
+        // IVs format: "31 HP / 31 Atk / 31 Def / 31 SpA / 31 SpD / 31 Spe" 
+        output += `IVs: ${data.ivs.hp} HP / ${data.ivs.atk} Atk / ${data.ivs.def} Def / ${data.ivs.spa} SpA / ${data.ivs.spd} SpD / ${data.ivs.spe} Spe\n`;
+        
+        // Nature format: "[Chosen nature] Nature"
+        output += `${data.nature} Nature\n`;
+        
+        // Moves format: "- Move 1", "- Move 2", etc.
+        for (let i = 0; i < 4; i++) {
+            const move = data.moves[i] || 'None';
+            output += `- ${move}`;
+            if (i < 3) output += '\n';
         }
-        
-        // Ability
-        if (ability) {
-            output += `Ability: ${ability}\n`;
+
+        return output;
+    }
+
+    generateShowdownFormat(data) {
+        let output = `${data.nickname}`;
+        if (data.species !== data.nickname) {
+            output = `${data.nickname} (${data.species})`;
         }
-        
-        // Level
-        output += `Level: ${level}\n`;
-        
-        // Shiny
-        if (shiny === 'Yes') {
-            output += `Shiny: Yes\n`;
-        }
-        
-        // Ball
-        output += `Ball: ${ball}\n`;
-        
-        // Tera Type
-        if (teraType) {
-            output += `Tera Type: ${teraType}\n`;
-        }
-        
-        // EVs (only if not all 0)
-        if (evs.some(ev => ev !== '0')) {
-            output += `EVs: ${evs.join(' / ')}\n`;
-        }
-        
-        // IVs (only if not all 31)
-        if (ivs.some(iv => iv !== '31')) {
-            output += `IVs: ${ivs.join(' / ')}\n`;
-        }
-        
-        // Nature
-        if (nature) {
-            output += `${nature} Nature\n`;
-        }
-        
-        // Moves
-        moves.forEach(move => {
-            output += `- ${move}\n`;
+        if (data.item !== 'None') output += ` @ ${data.item}`;
+        output += `\nAbility: ${data.ability}`;
+        output += `\nLevel: ${data.level}`;
+
+        const evs = [];
+        if (data.evs.hp) evs.push(`${data.evs.hp} HP`);
+        if (data.evs.atk) evs.push(`${data.evs.atk} Atk`);
+        if (data.evs.def) evs.push(`${data.evs.def} Def`);
+        if (data.evs.spa) evs.push(`${data.evs.spa} SpA`);
+        if (data.evs.spd) evs.push(`${data.evs.spd} SpD`);
+        if (data.evs.spe) evs.push(`${data.evs.spe} Spe`);
+        if (evs.length) output += `\nEVs: ${evs.join(' / ')}`;
+
+        output += `\n${data.nature} Nature`;
+
+        const ivs = [];
+        if (data.ivs.hp !== 31) ivs.push(`${data.ivs.hp} HP`);
+        if (data.ivs.atk !== 31) ivs.push(`${data.ivs.atk} Atk`);
+        if (data.ivs.def !== 31) ivs.push(`${data.ivs.def} Def`);
+        if (data.ivs.spa !== 31) ivs.push(`${data.ivs.spa} SpA`);
+        if (data.ivs.spd !== 31) ivs.push(`${data.ivs.spd} SpD`);
+        if (data.ivs.spe !== 31) ivs.push(`${data.ivs.spe} Spe`);
+        if (ivs.length) output += `\nIVs: ${ivs.join(' / ')}`;
+
+        data.moves.forEach(move => output += `\n- ${move}`);
+
+        return output;
+    }
+
+    switchTab(tab) {
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tab);
         });
-        
-        const outputText = document.getElementById('outputText');
-        if (outputText) {
-            outputText.value = output;
-        }
-        this.validateForm();
-    }
-
-    getElementValue(id) {
-        const element = document.getElementById(id);
-        return element ? element.value : '';
-    }
-
-    // Profile Management
-    loadProfiles() {
-        try {
-            const saved = localStorage.getItem('pokemonProfiles');
-            this.profiles = saved ? JSON.parse(saved) : [];
-            this.updateProfileDropdown();
-        } catch (error) {
-            console.error('Error loading profiles:', error);
-            this.profiles = [];
-        }
-    }
-
-    saveProfiles() {
-        try {
-            localStorage.setItem('pokemonProfiles', JSON.stringify(this.profiles));
-        } catch (error) {
-            console.error('Error saving profiles:', error);
-        }
-    }
-
-    updateProfileDropdown() {
-        const select = document.getElementById('profileSelect');
-        if (!select) return;
-        
-        select.innerHTML = '<option value="">Select Profile...</option>';
-        
-        this.profiles.forEach((profile, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = `${profile.name} (ID: ${profile.trainerId})`;
-            select.appendChild(option);
+        document.querySelectorAll('.export-tab').forEach(tabEl => {
+            tabEl.classList.toggle('active', tabEl.dataset.tab === tab);
         });
     }
 
-    saveCurrentProfile() {
-        const name = this.getElementValue('trainerName').trim();
-        const trainerId = this.getElementValue('trainerId').trim();
-        const secretId = this.getElementValue('secretId').trim();
-        
-        if (!name || !trainerId || !secretId) {
-            alert('Please fill in all trainer profile fields');
-            return;
-        }
-        
-        const profile = {
-            name: name,
-            trainerId: trainerId,
-            secretId: secretId,
-            timestamp: new Date().toISOString()
-        };
-        
-        // Check if updating existing profile
-        const profileSelect = document.getElementById('profileSelect');
-        const currentIndex = profileSelect ? profileSelect.value : '';
-        
-        if (currentIndex !== '') {
-            this.profiles[parseInt(currentIndex)] = profile;
-        } else {
-            this.profiles.push(profile);
-        }
-        
-        this.saveProfiles();
-        this.updateProfileDropdown();
-        
-        // Select the saved profile
-        const profileIndex = currentIndex !== '' ? currentIndex : this.profiles.length - 1;
-        if (profileSelect) {
-            profileSelect.value = profileIndex;
-        }
-        
-        alert('Profile saved successfully!');
-    }
+    async copyToClipboard(targetId) {
+        const textarea = document.getElementById(targetId);
+        const btn = document.querySelector(`[data-target="${targetId}"]`);
 
-    deleteCurrentProfile() {
-        const profileSelect = document.getElementById('profileSelect');
-        const currentIndex = profileSelect ? profileSelect.value : '';
-        
-        if (currentIndex === '') {
-            alert('No profile selected to delete');
-            return;
-        }
-        
-        if (confirm('Are you sure you want to delete this profile?')) {
-            this.profiles.splice(parseInt(currentIndex), 1);
-            this.saveProfiles();
-            this.updateProfileDropdown();
-            this.clearProfileForm();
-            alert('Profile deleted successfully!');
-        }
-    }
+        if (!textarea || !btn) return;
 
-    createNewProfile() {
-        this.clearProfileForm();
-        const profileSelect = document.getElementById('profileSelect');
-        if (profileSelect) {
-            profileSelect.value = '';
-        }
-    }
-
-    loadProfile(index) {
-        if (index === '') {
-            this.clearProfileForm();
-            return;
-        }
-        
-        const profile = this.profiles[parseInt(index)];
-        if (profile) {
-            this.setElementValue('trainerName', profile.name);
-            this.setElementValue('trainerId', profile.trainerId);
-            this.setElementValue('secretId', profile.secretId);
-        }
-    }
-
-    clearProfileForm() {
-        this.setElementValue('trainerName', '');
-        this.setElementValue('trainerId', '');
-        this.setElementValue('secretId', '');
-    }
-
-    setElementValue(id, value) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.value = value;
-        }
-    }
-
-    // Utility functions
-    copyToClipboard() {
-        const outputText = document.getElementById('outputText');
-        const output = outputText ? outputText.value : '';
-        
-        if (!output.trim()) {
-            alert('No output to copy');
-            return;
-        }
-        
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(output).then(() => {
-                const button = document.getElementById('copyOutput');
-                if (button) {
-                    button.classList.add('copy-success');
-                    setTimeout(() => button.classList.remove('copy-success'), 2000);
-                }
-            }).catch(() => {
-                this.fallbackCopyToClipboard(output);
-            });
-        } else {
-            this.fallbackCopyToClipboard(output);
-        }
-    }
-
-    fallbackCopyToClipboard(text) {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
         try {
+            await navigator.clipboard.writeText(textarea.value);
+        } catch {
+            textarea.select();
             document.execCommand('copy');
-            alert('Copied to clipboard!');
-        } catch (err) {
-            alert('Copy failed. Please select and copy manually.');
         }
-        document.body.removeChild(textArea);
+
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
     }
 
-    clearForm() {
-        if (confirm('Clear all form data?')) {
-            // Reset all form fields
-            this.setElementValue('pokemonSelect', '');
-            this.setElementValue('nickname', '');
-            this.setElementValue('level', '50');
-            this.setElementValue('ability', '');
-            this.setElementValue('nature', '');
-            this.setElementValue('gender', '');
-            this.setElementValue('shiny', 'No');
-            this.setElementValue('ball', '');
-            this.setElementValue('heldItem', '');
-            this.setElementValue('teraType', '');
-            
-            ['move1', 'move2', 'move3', 'move4'].forEach(id => {
-                this.setElementValue(id, '');
-            });
-            
-            ['ivHp', 'ivAtk', 'ivDef', 'ivSpA', 'ivSpD', 'ivSpe'].forEach(id => {
-                this.setElementValue(id, '31');
-            });
-            
-            ['evHp', 'evAtk', 'evDef', 'evSpA', 'evSpD', 'evSpe'].forEach(id => {
-                this.setElementValue(id, '0');
-            });
-            
-            this.clearSpeciesData();
-            this.updateEVTotal();
-            this.updateOutput();
+    formatName(name) {
+        if (!name) return '';
+        return name.split('-').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+    }
+
+    showLoading(show) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.style.display = show ? 'flex' : 'none';
         }
     }
 
-    updateDatabaseStats() {
-        this.setElementValue('pokemonCount', Object.keys(this.pokemonData).length.toString());
-        this.setElementValue('ballCount', this.ballTypes.length.toString());
-        this.setElementValue('itemCount', this.heldItems.length.toString());
-        this.setElementValue('moveCount', this.moves.length.toString());
+    showError(message) {
+        console.error('Error:', message);
+        const toast = document.getElementById('errorToast');
+        if (toast) {
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 5000);
+        }
     }
 }
 
-// Initialize the application
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    new PokemonGenerator();
+    console.log('DOM loaded, initializing Pokemon Generator...');
+    window.pokemonGenerator = new PokemonGenerator();
+    window.pokemonGenerator.init().catch(error => {
+        console.error('Failed to initialize Pokemon Generator:', error);
+    });
 });

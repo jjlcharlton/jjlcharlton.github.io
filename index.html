@@ -1,288 +1,273 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-color-scheme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comprehensive Pokemon Generator</title>
+    <title>Pokémon Generator - Discord Trade Bot Format</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>Pokemon Generator Pro</h1>
-            <p class="header__subtitle">Complete Pokemon builder for Nintendo Switch games - Compatible with PkHex & Sysbot</p>
+            <h1>Pokémon Generator</h1>
+            <p>Create legal Pokémon for Discord trade bots and Showdown</p>
         </header>
 
-        <div class="app-layout">
-            <!-- Left Panel: Pokemon Builder -->
-            <div class="builder-panel">
-                <div class="section-card">
-                    <h3 class="section-title">Pokemon Selection</h3>
-                    <div class="form-group">
-                        <label class="form-label" for="pokemonSelect">Species</label>
-                        <select id="pokemonSelect" class="form-control">
-                            <option value="">Select Pokemon...</option>
-                        </select>
+        <div class="main-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Species Selection -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Species Selection</h3>
                     </div>
-                    <div class="form-row">
+                    <div class="card__body">
                         <div class="form-group">
-                            <label class="form-label" for="nickname">Nickname</label>
-                            <input type="text" id="nickname" class="form-control" placeholder="Optional">
+                            <label class="form-label" for="speciesInput">Pokémon Species</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="speciesInput" class="form-control" placeholder="Type to search Pokémon...">
+                                <div id="speciesDropdown" class="dropdown-list"></div>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="level">Level</label>
-                            <input type="number" id="level" class="form-control" min="1" max="100" value="50">
+                            <label class="form-label" for="nicknameInput">Nickname</label>
+                            <input type="text" id="nicknameInput" class="form-control" placeholder="Enter nickname..." maxlength="12">
                         </div>
-                    </div>
-                </div>
-
-                <div class="section-card">
-                    <h3 class="section-title">Basic Properties</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="ability">Ability</label>
-                            <select id="ability" class="form-control">
-                                <option value="">Select Pokemon first</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="nature">Nature</label>
-                            <select id="nature" class="form-control">
-                                <option value="">Select Nature...</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="gender">Gender</label>
-                            <select id="gender" class="form-control">
-                                <option value="">Auto</option>
-                                <option value="M">Male</option>
-                                <option value="F">Female</option>
-                                <option value="N">Genderless</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="shiny">Shiny</label>
-                            <select id="shiny" class="form-control">
-                                <option value="No">No</option>
-                                <option value="Yes">Yes</option>
-                            </select>
+                        <div id="pokemonPreview" class="pokemon-preview" style="display: none;">
+                            <img id="pokemonSprite" class="pokemon-sprite" alt="Pokémon sprite">
+                            <div class="pokemon-details">
+                                <div id="pokemonTypes" class="pokemon-types"></div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label" for="levelInput">Level</label>
+                                        <input type="number" id="levelInput" class="form-control" min="1" max="100" value="100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="shiny-toggle">
+                                            <input type="checkbox" id="shinyToggle">
+                                            <span class="checkmark"></span>
+                                            Shiny
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="section-card">
-                    <h3 class="section-title">Equipment</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label" for="ball">Poke Ball</label>
-                            <select id="ball" class="form-control">
-                                <option value="">Select Ball...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="heldItem">Held Item</label>
-                            <select id="heldItem" class="form-control">
-                                <option value="">Select Item...</option>
-                            </select>
-                        </div>
+                <!-- Ability & Nature -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Ability & Nature</h3>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="teraType">Tera Type</label>
-                        <select id="teraType" class="form-control">
-                            <option value="">Select Type...</option>
-                            <option value="Normal">Normal</option>
-                            <option value="Fire">Fire</option>
-                            <option value="Water">Water</option>
-                            <option value="Electric">Electric</option>
-                            <option value="Grass">Grass</option>
-                            <option value="Ice">Ice</option>
-                            <option value="Fighting">Fighting</option>
-                            <option value="Poison">Poison</option>
-                            <option value="Ground">Ground</option>
-                            <option value="Flying">Flying</option>
-                            <option value="Psychic">Psychic</option>
-                            <option value="Bug">Bug</option>
-                            <option value="Rock">Rock</option>
-                            <option value="Ghost">Ghost</option>
-                            <option value="Dragon">Dragon</option>
-                            <option value="Dark">Dark</option>
-                            <option value="Steel">Steel</option>
-                            <option value="Fairy">Fairy</option>
-                        </select>
+                    <div class="card__body">
+                        <div class="form-group">
+                            <label class="form-label" for="abilitySelect">Ability</label>
+                            <select id="abilitySelect" class="form-control">
+                                <option value="">Select ability...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="natureSelect">Nature</label>
+                            <select id="natureSelect" class="form-control">
+                                <option value="">Select nature...</option>
+                            </select>
+                        </div>
+                        <div id="natureEffect" class="nature-effect"></div>
                     </div>
                 </div>
 
-                <div class="section-card">
-                    <h3 class="section-title">Moves</h3>
-                    <div class="moves-grid">
-                        <div class="form-group">
-                            <label class="form-label" for="move1">Move 1</label>
-                            <select id="move1" class="form-control move-select">
-                                <option value="">Select Move...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="move2">Move 2</label>
-                            <select id="move2" class="form-control move-select">
-                                <option value="">Select Move...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="move3">Move 3</label>
-                            <select id="move3" class="form-control move-select">
-                                <option value="">Select Move...</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="move4">Move 4</label>
-                            <select id="move4" class="form-control move-select">
-                                <option value="">Select Move...</option>
-                            </select>
-                        </div>
+                <!-- Held Item & Ball -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Item & Ball</h3>
                     </div>
-                </div>
-
-                <div class="section-card">
-                    <h3 class="section-title">Stats</h3>
-                    <div class="stats-section">
-                        <h4>IVs (0-31)</h4>
-                        <div class="stats-grid">
-                            <div class="stat-input">
-                                <label class="form-label">HP</label>
-                                <input type="number" id="ivHp" class="form-control" min="0" max="31" value="31">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">Atk</label>
-                                <input type="number" id="ivAtk" class="form-control" min="0" max="31" value="31">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">Def</label>
-                                <input type="number" id="ivDef" class="form-control" min="0" max="31" value="31">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">SpA</label>
-                                <input type="number" id="ivSpA" class="form-control" min="0" max="31" value="31">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">SpD</label>
-                                <input type="number" id="ivSpD" class="form-control" min="0" max="31" value="31">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">Spe</label>
-                                <input type="number" id="ivSpe" class="form-control" min="0" max="31" value="31">
+                    <div class="card__body">
+                        <div class="form-group">
+                            <label class="form-label" for="itemInput">Held Item</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="itemInput" class="form-control" placeholder="Type to search items...">
+                                <div id="itemDropdown" class="dropdown-list"></div>
                             </div>
                         </div>
-                        
-                        <h4>EVs (0-252, max 510 total)</h4>
-                        <div class="stats-grid">
-                            <div class="stat-input">
-                                <label class="form-label">HP</label>
-                                <input type="number" id="evHp" class="form-control ev-input" min="0" max="252" value="0" step="4">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">Atk</label>
-                                <input type="number" id="evAtk" class="form-control ev-input" min="0" max="252" value="0" step="4">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">Def</label>
-                                <input type="number" id="evDef" class="form-control ev-input" min="0" max="252" value="0" step="4">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">SpA</label>
-                                <input type="number" id="evSpA" class="form-control ev-input" min="0" max="252" value="0" step="4">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">SpD</label>
-                                <input type="number" id="evSpD" class="form-control ev-input" min="0" max="252" value="0" step="4">
-                            </div>
-                            <div class="stat-input">
-                                <label class="form-label">Spe</label>
-                                <input type="number" id="evSpe" class="form-control ev-input" min="0" max="252" value="0" step="4">
-                            </div>
+                        <div class="form-group">
+                            <label class="form-label" for="ballSelect">Poké Ball</label>
+                            <select id="ballSelect" class="form-control">
+                                <option value="">Select ball...</option>
+                            </select>
                         </div>
-                        <div class="ev-total">
-                            Total EVs: <span id="evTotal">0</span>/510
+                        <div class="form-group">
+                            <label class="form-label" for="otGenderSelect">OT Gender</label>
+                            <select id="otGenderSelect" class="form-control">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Panel: Output & Profile Management -->
-            <div class="output-panel">
-                <div class="section-card">
-                    <h3 class="section-title">Trainer Profiles</h3>
-                    <div class="profile-section">
-                        <div class="form-group">
-                            <label class="form-label" for="profileSelect">Select Profile</label>
-                            <select id="profileSelect" class="form-control">
-                                <option value="">No profiles saved</option>
-                            </select>
-                        </div>
-                        <div class="profile-form">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" for="trainerName">Trainer Name</label>
-                                    <input type="text" id="trainerName" class="form-control" placeholder="Enter name">
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- Moves -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Moves (Max 4)</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="moves-grid">
+                            <div class="move-slot">
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" class="form-control move-input" placeholder="Move 1" data-move="0">
+                                    <div class="dropdown-list move-dropdown" data-move="0"></div>
                                 </div>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label" for="trainerId">Trainer ID</label>
-                                    <input type="number" id="trainerId" class="form-control" placeholder="00000" min="0" max="65535">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="secretId">Secret ID</label>
-                                    <input type="number" id="secretId" class="form-control" placeholder="00000" min="0" max="65535">
+                            <div class="move-slot">
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" class="form-control move-input" placeholder="Move 2" data-move="1">
+                                    <div class="dropdown-list move-dropdown" data-move="1"></div>
                                 </div>
                             </div>
-                            <div class="profile-buttons">
-                                <button type="button" id="saveProfile" class="btn btn--primary btn--sm">Save Profile</button>
-                                <button type="button" id="deleteProfile" class="btn btn--outline btn--sm">Delete Profile</button>
-                                <button type="button" id="newProfile" class="btn btn--secondary btn--sm">New Profile</button>
+                            <div class="move-slot">
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" class="form-control move-input" placeholder="Move 3" data-move="2">
+                                    <div class="dropdown-list move-dropdown" data-move="2"></div>
+                                </div>
+                            </div>
+                            <div class="move-slot">
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" class="form-control move-input" placeholder="Move 4" data-move="3">
+                                    <div class="dropdown-list move-dropdown" data-move="3"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="section-card">
-                    <h3 class="section-title">Pokemon Showdown Output</h3>
-                    <div class="output-section">
-                        <div class="validation-status" id="validationStatus">
-                            <span class="status status--info">Ready to build Pokemon</span>
+                <!-- IVs and EVs -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3>IVs & EVs</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="stats-grid">
+                            <div class="stats-header">
+                                <span>Stat</span>
+                                <span class="iv-header">IV</span>
+                                <span class="ev-header">EV</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-name">HP</span>
+                                <input type="number" class="form-control iv-input" min="0" max="31" value="31" data-stat="hp">
+                                <input type="number" class="form-control ev-input" min="0" max="252" value="0" data-stat="hp">
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-name">Attack</span>
+                                <input type="number" class="form-control iv-input" min="0" max="31" value="31" data-stat="attack">
+                                <input type="number" class="form-control ev-input" min="0" max="252" value="0" data-stat="attack">
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-name">Defense</span>
+                                <input type="number" class="form-control iv-input" min="0" max="31" value="31" data-stat="defense">
+                                <input type="number" class="form-control ev-input" min="0" max="252" value="0" data-stat="defense">
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-name">Sp. Atk</span>
+                                <input type="number" class="form-control iv-input" min="0" max="31" value="31" data-stat="special-attack">
+                                <input type="number" class="form-control ev-input" min="0" max="252" value="0" data-stat="special-attack">
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-name">Sp. Def</span>
+                                <input type="number" class="form-control iv-input" min="0" max="31" value="31" data-stat="special-defense">
+                                <input type="number" class="form-control ev-input" min="0" max="252" value="0" data-stat="special-defense">
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-name">Speed</span>
+                                <input type="number" class="form-control iv-input" min="0" max="31" value="31" data-stat="speed">
+                                <input type="number" class="form-control ev-input" min="0" max="252" value="0" data-stat="speed">
+                            </div>
                         </div>
-                        <textarea id="outputText" class="output-textarea" readonly placeholder="Configure your Pokemon to see the output format..."></textarea>
-                        <div class="output-buttons">
-                            <button type="button" id="copyOutput" class="btn btn--primary">Copy to Clipboard</button>
-                            <button type="button" id="clearForm" class="btn btn--secondary">Clear Form</button>
+                        <div class="ev-total">
+                            <span>Total EVs: <span id="evTotal">0</span>/510</span>
+                            <div id="evError" class="error-message" style="display: none;">EV total exceeds 510!</div>
+                        </div>
+                        
+                        <!-- IV/EV Display Format -->
+                        <div class="stats-display">
+                            <div class="stats-line">
+                                <strong>IVs:</strong> <span id="ivDisplay">31 HP / 31 Atk / 31 Def / 31 SpA / 31 SpD / 31 Spe</span>
+                            </div>
+                            <div class="stats-line">
+                                <strong>EVs:</strong> <span id="evDisplay">0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="section-card">
-                    <h3 class="section-title">Database Info</h3>
-                    <div class="database-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Pokemon Species:</span>
-                            <span class="stat-value" id="pokemonCount">Loading...</span>
+                <!-- Trainer Info -->
+                <div class="card">
+                    <div class="card__header">
+                        <h3>Trainer Info</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="otInput">OT Name</label>
+                                <input type="text" id="otInput" class="form-control" placeholder="Trainer" maxlength="12" value="Ash">
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Available Balls:</span>
-                            <span class="stat-value" id="ballCount">Loading...</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Held Items:</span>
-                            <span class="stat-value" id="itemCount">Loading...</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Total Moves:</span>
-                            <span class="stat-value" id="moveCount">Loading...</span>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="tidInput">TID</label>
+                                <input type="number" id="tidInput" class="form-control" min="0" max="99999" value="12345">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="sidInput">SID</label>
+                                <input type="number" id="sidInput" class="form-control" min="0" max="99999" value="54321">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Generate Button -->
+        <div class="generate-section">
+            <button id="generateButton" class="btn btn--primary btn--lg btn--full-width" disabled>
+                Generate Pokémon
+            </button>
+            <div id="validationErrors" class="validation-errors"></div>
+        </div>
+
+        <!-- Export Results -->
+        <div id="exportSection" class="export-section" style="display: none;">
+            <div class="export-tabs">
+                <button class="tab-button active" data-tab="discord">Discord Bot Format</button>
+                <button class="tab-button" data-tab="showdown">Showdown Format</button>
+            </div>
+            <div class="export-content">
+                <div class="export-tab active" data-tab="discord">
+                    <div class="export-header">
+                        <h4>Discord Bot Export</h4>
+                        <button class="btn btn--secondary btn--sm copy-btn" data-target="discordOutput">Copy</button>
+                    </div>
+                    <textarea id="discordOutput" class="export-textarea" readonly></textarea>
+                </div>
+                <div class="export-tab" data-tab="showdown">
+                    <div class="export-header">
+                        <h4>Showdown Export</h4>
+                        <button class="btn btn--secondary btn--sm copy-btn" data-target="showdownOutput">Copy</button>
+                    </div>
+                    <textarea id="showdownOutput" class="export-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorToast" class="error-toast" style="display: none;"></div>
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <div>Loading Pokémon database...</div>
     </div>
 
     <script src="app.js"></script>
